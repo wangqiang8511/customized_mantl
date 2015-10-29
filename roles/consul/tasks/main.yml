@@ -1,0 +1,128 @@
+---
+- name: install consul
+  sudo: yes
+  yum:
+    name: "https://bintray.com/artifact/download/ciscocloud/rpm/consul-0.5.2-2.el7.centos.x86_64.rpm"
+    state: present
+  tags:
+    - consul
+    - bootstrap
+
+- name: install consul-ui
+  sudo: yes
+  yum:
+    name: "https://bintray.com/artifact/download/ciscocloud/rpm/consul-ui-0.5.2-2.el7.centos.x86_64.rpm"
+    state: present
+  when: consul_is_server
+  tags:
+    - consul
+    - bootstrap
+
+- name: install consul-utils
+  sudo: yes
+  yum:
+    name: "https://bintray.com/artifact/download/ciscocloud/rpm/consul-utils-0.1.0-1.el7.centos.x86_64.rpm"
+    state: present
+  tags:
+    - consul
+    - bootstrap
+
+- name: configure consul
+  sudo: yes
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode | default('u=rw,g=r,o=r') }}"
+  with_items:
+    - src: consul.json.j2
+      dest: /etc/consul/consul.json
+  notify:
+    - restart consul
+  tags:
+    - consul
+
+- name: register docker with consul
+  sudo: yes
+  copy:
+    src: docker-service.json
+    dest: /etc/consul
+  notify:
+    - reload consul
+  tags:
+    - consul
+
+- name: deploy tls files
+  sudo: yes
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - src: ssl/cacert.pem
+      dest: /etc/consul/ssl/{{ consul_ca_file }}
+    - src: ssl/certs/consul.cert.pem
+      dest: /etc/consul/ssl/{{ consul_cert_file }}
+    - src: ssl/private/consul.key.pem
+      dest: /etc/consul/ssl/{{ consul_key_file }}
+  notify:
+    - restart consul
+  tags:
+    - consul
+
+- name: configure consul acl policy
+  sudo: yes
+  template:
+    src: acl.json.j2
+    dest: /etc/consul/acl.json
+  notify:
+    - restart consul
+  tags:
+    - consul
+
+- name: install consul scripts
+  sudo: yes
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: u=rwx,g=rx,o=rx
+  with_items:
+    - src: consul-wait-for-leader.sh
+      dest: /usr/local/bin
+    - src: consul-rolling-restart.sh
+      dest: /usr/local/bin
+  tags:
+    - consul
+
+- name: install check scripts
+  sudo: yes
+  copy:
+    src: check-service-active
+    dest: /usr/local/bin
+    mode: u=rwx,g=rx,o=rx
+  tags:
+    - consul
+
+- name: enable consul
+  sudo: yes
+  service:
+    name: consul
+    enabled: yes
+    state: started
+  tags:
+    - consul
+
+# Give consul time to elect a leader
+- name: wait for leader
+  command: /usr/local/bin/consul-wait-for-leader.sh
+  tags:
+    - consul
+
+- meta: flush_handlers
+
+- include: acl.yml
+
+- meta: flush_handlers
+
+- include: nginx_proxy.yml
+
+# symlink to distributive checklist, register check with Consul
+- include: distributive.yml

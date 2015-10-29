@@ -1,0 +1,55 @@
+input {
+  file {
+    path => "/logs/mesos/*"
+    type => mesos
+  }
+  file {
+    path => "/logs/zookeeper/*"
+    type => zookeeper
+  }
+  syslog {
+    port => 1514
+    type => syslog
+  }
+  udp {
+    port => 25826
+    type => collectd
+    codec => collectd {
+      typesdb => ["/collectd/types.db", "/collectd/plugins/dockerplugin.db"]
+    }
+  }
+  udp {
+    port => 8125
+    type => statsd
+  }
+{% if logstash_input_log4j %}
+  log4j {
+    mode => "server"
+    port => {{ logstash_log4j_port }}
+    type => "log4j"
+  }
+{% endif %}
+}
+
+filter {
+  if [type] == "syslog" {
+    mutate {
+      replace => { "host" => "{{ inventory_hostname }}" }
+    }
+  }
+}
+
+output {
+{% if logstash_output_elasticsearch is defined %}
+  elasticsearch {
+  {% for key, val in logstash_output_elasticsearch.iteritems() %}
+    {{ key }} => {{ val | to_nice_json }}
+  {% endfor %}
+  }
+{% endif %}
+{% if logstash_output_stdout %}
+  stdout {
+    codec => rubydebug
+  }
+{% endif %}
+}

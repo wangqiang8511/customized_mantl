@@ -1,0 +1,962 @@
+#!/usr/bin/env python
+"""set up authentication and security for various components"""
+from __future__ import print_function
+import argparse
+import base64
+from collections import OrderedDict
+from contextlib import contextmanager
+import getpass
+import hashlib
+import os
+import posixpath
+import random
+import shlex
+import stat
+import string
+from subprocess import Popen, PIPE
+import sys
+import textwrap
+import uuid
+import yaml
+
+
+class HelpFormatter(argparse.RawTextHelpFormatter,
+                    argparse.ArgumentDefaultsHelpFormatter):
+    pass
+
+
+parser = argparse.ArgumentParser(
+    __file__,
+    __doc__,
+    formatter_class=HelpFormatter,
+    epilog=textwrap.dedent('''\
+    Examples:
+
+      {name}
+                            enable or re-enable all security options
+      {name} --enable=false
+                            disable all security options
+      {name} --iptables=false --consul-ssl=false
+                            disable iptables rules and Consul SSL
+      {name} --change-admin-password --enable=true
+                            explicitly enable or re-enable every service (any
+                            other disables will be ignored) and re-prompt for
+                            the admin password.
+    '''.format(name=__file__)))
+parser.add_argument(
+    '--change-admin-password',
+    action='store_true',
+    help='change admin password during this run')
+
+
+class ImplicitBool(object):
+    TRUE = True
+    FALSE = False
+    IMPLICIT_TRUE = 'True'  # this just has to be a different type/value than the real True
+
+    def __init__(self, value, explicit):
+        self.value = value
+        self.explicit = explicit
+
+    def __nonzero__(self):
+        return self.value
+
+    @classmethod
+    def represent(cls, dumper, obj):
+        return dumper.represent_bool(obj.value)
+
+    @classmethod
+    def parse_opt(cls, opt):
+        if len(opt) == 0:
+            raise argparse.ArgumentTypeError('blank is not allowed')
+
+        char = opt[0].lower()
+
+        if opt == cls.IMPLICIT_TRUE:
+            return cls(True, False)
+        elif char in ['1', 't']:
+            return cls(True, True)
+        elif char in ['0', 'f']:
+            return cls(False, True)
+        else:
+            raise argparse.ArgumentTypeError(
+                '"%s" is not allowed. Try "true" or "false"' % raw_opt)
+
+# disables
+broad_opts = parser.add_argument_group(
+    "Broad Options",
+    "enable or disable security for entire components. This overrides any more "
+    "specific options set from the sections below.")
+broad_opts.add_argument(
+    '--enable',
+    type=ImplicitBool.parse_opt,
+    default=ImplicitBool.IMPLICIT_TRUE,
+    help='enable all security. This overrides everything.')
+broad_opts.add_argument(
+    '--consul',
+    type=ImplicitBool.parse_opt,
+    default=True,
+    help='Enable Consul security. This overrides all other Consul options.')
+broad_opts.add_argument(
+    '--mesos',
+    type=ImplicitBool.parse_opt,
+    default=True,
+    help='Enable Mesos security. This overrides all other Mesos options.')
+broad_opts.add_argument(
+    '--marathon',
+    type=ImplicitBool.parse_opt,
+    default=True,
+    help=
+    'Enable Marathon security. This overrides all other Marathon options.')
+broad_opts.add_argument(
+    '--chronos',
+    type=ImplicitBool.parse_opt,
+    default=True,
+    help='Enable Chronos security. This overrides all other Chronos options.')
+broad_opts.add_argument(
+    '--iptables',
+    type=ImplicitBool.parse_opt,
+    default=True,
+    help=
+    'Use iptables rules. This overrides all other options related to iptables.')
+
+# certificates
+cert_opts = parser.add_argument_group(
+    "SSL Certificate Options",
+    "a certificate authority will be set up, and "
+    "certificates will be issued using these options", )
+cert_opts.add_argument(
+    '--cert-country',
+    default='US',
+    help='certificate country')
+cert_opts.add_argument(
+    '--cert-state',
+    default='New York',
+    help='certificate state/province')
+cert_opts.add_argument(
+    '--cert-locality',
+    default='Anytown',
+    help='certificate locality/city')
+cert_opts.add_argument(
+    '--cert-organization',
+    default='Example Company Inc',
+    help='certificate organization')
+cert_opts.add_argument(
+    '--cert-unit',
+    default='Operations',
+    help='organizational unit inside of organization', )
+cert_opts.add_argument(
+    '--cert-email',
+    default='operations@example.com',
+    help='contact email for organizational unit')
+cert_opts.add_argument(
+    '--consul-location',
+    default='consul.service.consul',
+    help='internal name for Consul certificate, will be used as common name')
+cert_opts.add_argument(
+    '--nginx-location',
+    default='*.service.consul',
+    help='internal name for Nginx proxies, will be used as common name')
+cert_opts.add_argument(
+    '--no-verify-certificates',
+    action='store_true',
+    help='skip verifying certificates as part of setup process')
+
+# mantlui
+mantlui_opts = parser.add_argument_group(
+    "mantlui options", "enable and disable auth components of mantlui")
+mantlui_opts.add_argument(
+    '--mantlui-ssl',
+    type=ImplicitBool.parse_opt,
+    help='enable mantlui SSL',
+    dest='do_mantlui_ssl',
+    default=True, )
+mantlui_opts.add_argument(
+    '--mantlui-auth',
+    type=ImplicitBool.parse_opt,
+    help='enable mantlui authentication',
+    dest='do_mantlui_auth',
+    default=True, )
+
+# Consul authentication
+consul_opts = parser.add_argument_group(
+    "Consul Options", "enable and disable auth components of Consul")
+consul_opts.add_argument(
+    '--consul-auth',
+    type=ImplicitBool.parse_opt,
+    default=True,
+    help='enable Consul auth',
+    dest='do_consul_auth')
+consul_opts.add_argument(
+    '--consul-ssl',
+    type=ImplicitBool.parse_opt,
+    default=True,
+    help='enable Consul auth',
+    dest='do_consul_ssl', )
+
+# Mesos security
+mesos_opts = parser.add_argument_group(
+    "Mesos Options", "enable and disable auth components of Mesos")
+mesos_opts.add_argument(
+    '--mesos-ssl',
+    type=ImplicitBool.parse_opt,
+    help='enable Mesos SSL',
+    dest='do_mesos_ssl',
+    default=True, )
+mesos_opts.add_argument(
+    '--mesos-auth',
+    type=ImplicitBool.parse_opt,
+    help='enable Mesos authentication',
+    dest='do_mesos_auth',
+    default=True, )
+mesos_opts.add_argument(
+    '--mesos-framework-auth',
+    type=ImplicitBool.parse_opt,
+    help='enable Mesos framework authentication',
+    dest='do_mesos_framework_auth',
+    default=True, )
+mesos_opts.add_argument(
+    '--mesos-follower-auth',
+    type=ImplicitBool.parse_opt,
+    help='enable Mesos follower authentication',
+    dest='do_mesos_follower_auth',
+    default=True, )
+mesos_opts.add_argument(
+    '--mesos-iptables',
+    type=ImplicitBool.parse_opt,
+    help='enable Mesos iptables rules',
+    dest='do_mesos_iptables',
+    default=True, )
+
+# Marathon security
+marathon_opts = parser.add_argument_group(
+    "Marathon Options", "enable and disable auth components of Marathon")
+marathon_opts.add_argument(
+    '--marathon-ssl',
+    type=ImplicitBool.parse_opt,
+    help='enable Marathon SSL',
+    dest='do_marathon_ssl',
+    default=True)
+marathon_opts.add_argument(
+    '--marathon-auth',
+    type=ImplicitBool.parse_opt,
+    help='enable Marathon authentication',
+    dest='do_marathon_auth',
+    default=True)
+marathon_opts.add_argument(
+    '--marathon-iptables',
+    type=ImplicitBool.parse_opt,
+    help='enable Marathon iptables rules',
+    dest='do_marathon_iptables',
+    default=True)
+
+# Chronos security
+chronos_opts = parser.add_argument_group(
+    "Chronos Options", "enable and disable auth components of Chronos")
+chronos_opts.add_argument(
+    '--chronos-ssl',
+    type=ImplicitBool.parse_opt,
+    help='enable Chronos SSL',
+    dest='do_chronos_ssl',
+    default=True)
+chronos_opts.add_argument(
+    '--chronos-auth',
+    type=ImplicitBool.parse_opt,
+    help='enable Chronos authentication',
+    dest='do_chronos_auth',
+    default=True)
+chronos_opts.add_argument(
+    '--chronos-iptables',
+    type=ImplicitBool.parse_opt,
+    help='enable Chronos iptables rules',
+    dest='do_chronos_iptables',
+    default=True)
+
+# Mantl API mesos credentials
+mantl_api_opts = parser.add_argument_group(
+    "Mantl API Options", "enable and disable auth components of Mantl API")
+mantl_api_opts.add_argument(
+    '--mantl-api-auth',
+    type=ImplicitBool.parse_opt,
+    help='enable Mantl API Meso credentials',
+    dest='do_mantl_api_auth',
+    default=True)
+
+# Docker registry security
+docker_registry_opts = parser.add_argument_group(
+    "Docker registry options",
+    "optional; setup credentials for private Docker registries")
+docker_registry_opts.add_argument(
+    '--use-private-docker-registry',
+    type=ImplicitBool.parse_opt,
+    help='add credentials for a private Docker registry',
+    dest='do_private_docker_registry',
+    default=False)
+
+BASE = posixpath.abspath(posixpath.dirname(__file__)).replace("\\", "/")
+SECURITY_FILE = posixpath.join(BASE, 'security.yml')
+
+# SSL
+CERT_PATH = posixpath.join(BASE, 'ssl')
+ROOT_KEY = posixpath.join(CERT_PATH, 'private', 'cakey.pem')
+ROOT_CERT = posixpath.join(CERT_PATH, 'cacert.pem')
+
+# dumping
+yaml.SafeDumper.add_representer(
+    OrderedDict, lambda dumper, od: dumper.represent_dict(od.iteritems()))
+yaml.SafeDumper.add_representer(ImplicitBool, ImplicitBool.represent)
+
+PASSWORDS = {}  # KV is purpose: password
+
+
+class Component(object):
+    def __init__(self, args):
+        self.args = args
+
+    def check(self, subset):
+        """return tasks which need to be run"""
+        return []
+
+    def component_enabled(self, component):
+        if self.args.enable and self.args.enable.explicit:
+            return True
+        else:
+            return self.args.enable and component
+
+    def read_security(self):
+        try:
+            with open(SECURITY_FILE, 'r') as fh:
+                security = yaml.safe_load(fh)
+        except IOError:  # file doesn't exist
+            security = {}
+        except ValueError:  # bad YAML
+            print('bad YAML in `security.yml` - please fix and try again')
+            sys.exit(1)
+
+        return security or {}
+
+    def write_security(self, options):
+        try:
+            content = yaml.safe_dump(
+                OrderedDict(sorted(options.items())),
+                explicit_start=True)
+            with open(SECURITY_FILE, 'w') as out:
+                out.write(content)
+        except IOError:
+            print('could not write this YAML to {}:'.format(SECURITY_FILE))
+            print()
+            print(yaml.safe_dump(options, explicit_start=True))
+            sys.exit(1)
+
+    @contextmanager
+    def modify_security(self):
+        security = self.read_security()
+        yield security
+        security['security_enabled'] = True
+        self.write_security(security)
+
+    def random(self, size=2 ** 5 + 1):
+        """get `size` bytes of random data, base64 encoded"""
+        return base64.b64encode(os.urandom(size))
+
+    def randpass(self, size=16):
+        """generates a random string of digits + letters"""
+        chars = string.letters + string.digits
+        return ''.join((random.choice(chars)) for x in range(size))
+
+    def ask_pass(self, prompt='Password: ', purpose=None):
+        """\
+        Ask the user for a password. If `purpose` is supplied, the password will
+        be reused for other calls to the same purpose
+        """
+        confirmed = False
+        if purpose is not None and purpose in PASSWORDS:
+            password = PASSWORDS[purpose]
+        elif sys.stdin.isatty():
+            while not confirmed:
+                password = getpass.getpass(prompt)
+                confpass = getpass.getpass('Confirm: ')
+                if password == confpass:
+                    confirmed = True
+                else:
+                    print('Passwords dont match! Please retype password!')
+        else:
+            password = self.randpass()
+
+        if purpose is not None and purpose not in PASSWORDS:
+            PASSWORDS[purpose] = password
+
+        return password
+
+    def ask_string(self, prompt):
+        """
+        Ask the user for some string.
+        """
+        return raw_input(prompt)
+
+    def ask_boolean(self, prompt, default_value):
+        """
+        Ask the user for a boolean (Y/N)
+        """
+        result = raw_input(prompt).upper()
+        if result == 'Y':
+            return True
+        elif result == 'N':
+            return False
+        else:
+            return default_value
+
+    def zk_digest(self, user, credential):
+        """creates a zookeeper-compatible digest.
+        The zk digest includes the username & password
+        """
+        return base64.b64encode(hashlib.sha1(user + ":" + credential).digest(
+        )).strip()
+
+    @contextmanager
+    def chdir(self, directory):
+        original = os.getcwd()
+        os.chdir(directory)
+        yield
+        os.chdir(original)
+
+    def call(self, command, stdin=None, visible_to_user=False):
+        capture = None if visible_to_user else PIPE
+        proc = Popen(shlex.split(command),
+                     stdin=capture,
+                     stdout=capture,
+                     stderr=capture)
+        stdout, stderr = proc.communicate(stdin)
+        return proc.returncode, stdout, stderr
+
+    def print_call_failure(self, status, stdout, stderr):
+        print('exit status: {}'.format(status))
+        if stdout:
+            print(' stdout '.center(40, '~'))
+            print(stdout.decode('utf-8'))
+        if stderr:
+            print(' stderr '.center(40, '~'))
+            print(stderr.decode('utf-8'))
+
+    def wrap_call(self, command, **kwargs):
+        status, out, err = self.call(command, **kwargs)
+        if status != 0:
+            print('~' * 40)
+            print('call to {} failed'.format(shlex.split(command)[0]))
+            print('command: {}'.format(command))
+            self.print_call_failure(status, out, err)
+            sys.exit(status)
+
+        return status, out, err
+
+    def openssl_subject(self, common, **overrides):
+        return '/C={country}/ST={state}/L={locality}/O={organization}' \
+               '/OU={unit}/CN={common}/emailAddress={email}'.format(
+            country=overrides.get('country', self.args.cert_country),
+            state=overrides.get('state', self.args.cert_state),
+            locality=overrides.get('locality', self.args.cert_locality),
+            organization=overrides.get('organization', self.args.cert_organization),
+            unit=overrides.get('unit', self.args.cert_unit),
+            common=common,
+            email=overrides.get('email', self.args.cert_email)
+        )
+
+    def generate_certificate(self, name):
+        key = posixpath.join(CERT_PATH, 'private', name + '.key.pem')
+        csr = posixpath.join(CERT_PATH, 'certs', name + '.csr.pem')
+        cert = posixpath.join(CERT_PATH, 'certs', name + '.cert.pem')
+        common = getattr(self.args, name + '_location',
+                         name + '.service.consul')
+
+        with self.chdir(CERT_PATH):
+            if posixpath.exists(key):
+                print('{} key already exists'.format(name))
+            else:
+                self.wrap_call(
+                    'openssl genrsa -out {} 2048 -config ./openssl.cnf'.format(
+                        key))
+                os.chmod(key, stat.S_IRUSR | stat.S_IWUSR)
+                print('generated {} key'.format(name))
+
+            if posixpath.exists(cert):
+                print('{} certificate already exists'.format(name))
+            else:
+                # CSR
+                self.wrap_call(
+                    'openssl req -sha256 -new -subj "{}" -key {} -out {} -config ./openssl.cnf'.format(
+                        self.openssl_subject(common), key, csr))
+                print('generated {} CSR'.format(name))
+
+                # certificate
+                self.wrap_call(
+                    'openssl ca -extensions usr_cert -notext -md sha256 '
+                    '-in {} -out {} -config ./openssl.cnf -batch'.format(
+                        csr, cert))
+                os.chmod(
+                    cert, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP
+                    | stat.S_IWGRP | stat.S_IROTH | stat.S_IWOTH)
+                print('generated {} certificate'.format(name))
+
+            # verify
+            if not self.args.no_verify_certificates:
+                status, out, err = self.wrap_call(
+                    'openssl verify -CAfile {} {}'.format(ROOT_CERT, cert))
+                if out != '{}: OK\n'.format(cert):
+                    self.print_call_failure(status, out, err)
+                    sys.exit(1)
+
+                print('{} certificate is valid'.format(name))
+
+    def toggle_boolean(self, inFlag, inValue, inDefault):
+        with self.modify_security() as config:
+            if inFlag not in config:
+                config[inFlag] = inDefault
+
+            if inValue is not None:
+                config[inFlag] = inValue
+
+
+class Certificates(Component):
+    def check(self):
+        return [self.ca]
+
+    def ca(self):
+        "certificate authority"
+        serial = posixpath.join(CERT_PATH, 'serial')
+        if posixpath.exists(serial):
+            print('serial already exists')
+        else:
+            with open(serial, 'w') as fh:
+                fh.write('100001')
+
+            print('created serial')
+
+        index = posixpath.join(CERT_PATH, 'index.txt')
+        if posixpath.exists(index):
+            print('index already exists')
+        else:
+            open(index, 'w').close()
+            print('created index')
+
+        with self.chdir(CERT_PATH):
+            if posixpath.exists(ROOT_KEY) or posixpath.exists(ROOT_CERT):
+                print('root CA already exists')
+            else:
+                self.wrap_call(
+                    'openssl req -new -x509 -extensions v3_ca -nodes -subj "{}" '
+                    '-keyout {} -out {} -days 365 -config ./openssl.cnf'.format(
+                        self.openssl_subject(
+                            "security-setup"), ROOT_KEY, ROOT_CERT))
+
+                os.chmod(ROOT_KEY, stat.S_IRUSR | stat.S_IWUSR)
+                os.chmod(ROOT_CERT, stat.S_IRUSR | stat.S_IWUSR)
+                print('generated root CA')
+
+
+class Nginx(Component):
+    def check(self):
+        return [self.cert, self.password]
+
+    def cert(self):
+        "SSL certificate"
+        self.generate_certificate("nginx")
+
+    def password(self):
+        "admin password"
+        with self.modify_security() as config:
+            if 'nginx_admin_password' not in config or self.args.change_admin_password:
+                config['nginx_admin_password'] = self.ask_pass(
+                    prompt='Admin Password: ',
+                    purpose='admin', )
+                print('set nginx admin password')
+            else:
+                print('nginx admin password already set')
+
+
+class Consul(Component):
+    def check(self):
+        return [self.check_security, self.gossip_key, self.master_acl_token,
+                self.agent_acl_token, self.cert, self.default_acl_policy]
+
+    def check_security(self):
+        "check security"
+        self.toggle_boolean('do_consul_auth',
+                            self.component_enabled(self.args.do_consul_auth),
+                            True)
+        self.toggle_boolean('do_consul_ssl',
+                            self.component_enabled(self.args.do_consul_ssl),
+                            True)
+
+    def gossip_key(self):
+        "gossip key"
+        with self.modify_security() as config:
+            if 'consul_gossip_key' not in config:
+                config['consul_gossip_key'] = self.random(16)
+                print('set gossip key')
+            else:
+                print('gossip key already set')
+
+    def master_acl_token(self):
+        "master acl token"
+        with self.modify_security() as config:
+            if 'consul_acl_master_token' not in config:
+                config['consul_acl_master_token'] = str(uuid.uuid4())
+                print('set acl master token')
+            else:
+                print('acl master token already set')
+
+    def agent_acl_token(self):
+        "agent acl token"
+        with self.modify_security() as config:
+            if 'consul_acl_agent_token' not in config:
+                config['consul_acl_agent_token'] = str(uuid.uuid4())
+                print('set acl agent token')
+            else:
+                print('acl agent token already set')
+
+    def cert(self):
+        "SSL certificate"
+        self.generate_certificate("consul")
+
+    def default_acl_policy(self):
+        "Default ACL policy"
+        with self.modify_security() as config:
+            if 'consul_default_acl_policy' not in config:
+                config['consul_default_acl_policy'] = 'allow'
+                print('set consul_default_acl_policy')
+            else:
+                print('consul_default_acl_policy already set')
+
+
+class Marathon(Component):
+    def check(self):
+        return [self.check_security, self.mesos_auth, self.password]
+
+    def check_security(self):
+        "check security"
+        self.toggle_boolean('do_marathon_auth',
+                            self.component_enabled(self.args.do_marathon_auth),
+                            True)
+        self.toggle_boolean('do_marathon_ssl',
+                            self.component_enabled(self.args.do_marathon_ssl),
+                            True)
+        self.toggle_boolean(
+            'do_marathon_iptables', self.component_enabled(
+                self.args.do_marathon_iptables and self.args.iptables), True)
+
+    def mesos_auth(self):
+        "marathon framework authentication"
+        with self.modify_security() as config:
+            config.setdefault('marathon_principal', 'marathon')
+            if 'marathon_secret' not in config:
+                config['marathon_secret'] = self.random()
+                print('set marathon framework secret')
+            else:
+                print('marathon secret already set')
+
+    def password(self):
+        "admin password"
+        with self.modify_security() as config:
+            if 'marathon_http_credentials' not in config or self.args.change_admin_password:
+                config['marathon_http_credentials'] = 'admin:{}'.format(
+                    self.ask_pass(
+                        prompt='Admin Password: ',
+                        purpose='admin', ))
+                print('set marathon http credentials')
+            else:
+                print('marathon http credentials already set')
+
+
+class Chronos(Component):
+    def check(self):
+        return [self.check_security, self.mesos_auth, self.password]
+
+    def check_security(self):
+        "check security"
+        self.toggle_boolean('do_chronos_auth',
+                            self.component_enabled(self.args.do_chronos_auth),
+                            True)
+        self.toggle_boolean('do_chronos_ssl',
+                            self.component_enabled(self.args.do_chronos_ssl),
+                            True)
+        self.toggle_boolean(
+            'do_chronos_iptables', self.component_enabled(
+                self.args.do_chronos_iptables and self.args.iptables), True)
+
+    def mesos_auth(self):
+        "chronos framework authentication"
+        with self.modify_security() as config:
+            config.setdefault('chronos_principal', 'chronos')
+            if 'chronos_secret' not in config:
+                config['chronos_secret'] = self.random()
+                print('set chronos framework secret')
+            else:
+                print('chronos secret already set')
+
+    def password(self):
+        "admin password"
+        with self.modify_security() as config:
+            if 'chronos_http_credentials' not in config or self.args.change_admin_password:
+                config['chronos_http_credentials'] = 'admin:{}'.format(
+                    self.ask_pass(
+                        prompt='Admin Password: ',
+                        purpose='admin', ))
+                print('set chronos http credentials')
+            else:
+                print('chronos http credentials already set')
+
+
+class MantlApi(Component):
+    def check(self):
+        return [self.check_security, self.mesos_auth]
+
+    def check_security(self):
+        "check security"
+        self.toggle_boolean(
+            'do_mantl_api_auth',
+            self.component_enabled(self.args.do_mantl_api_auth), True)
+
+    def mesos_auth(self):
+        "Mesos authentication for frameworks installed via Mantl API"
+        with self.modify_security() as config:
+            config.setdefault('mantl_api_principal', 'mantl-api')
+            if 'mantl_api_secret' not in config:
+                config['mantl_api_secret'] = self.random()
+                print('set Mantl API framework secret')
+            else:
+                print('Mantl API secret already set')
+
+
+class DockerRegistry(Component):
+    def check(self):
+        return [self.docker_registry_auth]
+
+    def docker_registry_auth(self):
+        do_private_docker_registry = self.args.do_private_docker_registry
+        self.toggle_boolean('do_private_docker_registry',
+                            self.component_enabled(do_private_docker_registry),
+                            True)
+        "docker registry authentication"
+        if do_private_docker_registry:
+            with self.modify_security() as config:
+                if 'docker_registries' not in config:
+                    more_registries = True
+                    registries = []
+                    while more_registries:
+                        registry_config = {}
+                        creds = '{}:{}'.format(
+                            self.ask_string(
+                                prompt='Docker registry username: '),
+                            self.ask_pass(
+                                prompt='Docker registry password: '))
+
+                        registry_config[
+                            'docker_registry_creds'] = base64.b64encode(creds)
+
+                        registry_config[
+                            'docker_registry_email'] = self.ask_string(
+                                prompt='Docker registry e-mail: ')
+
+                        default_url = 'https://index.docker.io/v1/'
+                        registry_config[
+                            'docker_registry_url'] = self.ask_string(
+                                prompt=
+                                'Docker registry URL (default is {}): '.format(
+                                    default_url))
+                        if registry_config['docker_registry_url'] == '':
+                            registry_config[
+                                'docker_registry_url'] = default_url
+
+                        registries.append(registry_config)
+
+                        more_registries = self.ask_boolean(
+                            "Are there more Docker registries? (y/N) ", False)
+                    config['docker_registries'] = registries
+                    print('set docker registry credentials')
+                else:
+                    print('docker registry credentials already set')
+
+
+class Zookeeper(Component):
+    def check(self):
+        return [
+            self.super_auth,
+            self.mesos_auth,
+            self.marathon_auth,
+            self.chronos_auth,
+        ]
+
+    def super_auth(self):
+        "super user auth"
+        with self.modify_security() as config:
+            config.setdefault('zk_super_user', 'super')
+            if 'zk_super_user_secret' not in config:
+                config['zk_super_user_secret'] = self.random()
+                print('set zk super user secret')
+            else:
+                print('zk super user secret already set')
+
+    def mesos_auth(self):
+        "mesos user auth"
+        with self.modify_security() as config:
+            config.setdefault('zk_mesos_user', 'mesos')
+            if 'zk_mesos_user_secret' not in config:
+                credential = self.randpass()
+                config['zk_mesos_user_secret'] = credential
+                config['zk_mesos_user_secret_digest'] = self.zk_digest(
+                    user='mesos',
+                    credential=credential)
+                print('set zk mesos user secret')
+            else:
+                print('zk mesos user secret already set')
+
+    def marathon_auth(self):
+        "marathon user auth"
+        with self.modify_security() as config:
+            config.setdefault('zk_marathon_user', 'marathon')
+            if 'zk_marathon_user_secret' not in config:
+                credential = self.randpass()
+                config['zk_marathon_user_secret'] = credential
+                config['zk_marathon_user_secret_digest'] = self.zk_digest(
+                    user='marathon',
+                    credential=credential)
+                print('set zk marathon user secret')
+            else:
+                print('zk marathon user secret already set')
+
+    def chronos_auth(self):
+        "chronos user auth"
+        with self.modify_security() as config:
+            config.setdefault('zk_chronos_user', 'chronos')
+            if 'zk_chronos_user_secret' not in config:
+                credential = self.randpass()
+                config['zk_chronos_user_secret'] = credential
+                config['zk_chronos_user_secret_digest'] = self.zk_digest(
+                    user='chronos',
+                    credential=credential)
+                print('set zk chronos user secret')
+            else:
+                print('zk chronos user secret already set')
+
+
+class MantlUI(Component):
+    def check(self):
+        return [self.check_security]
+
+    def check_security(self):
+        "check security"
+        self.toggle_boolean('do_mantlui_ssl',
+                            self.component_enabled(self.args.do_mantlui_ssl),
+                            True)
+        self.toggle_boolean('do_mantlui_auth',
+                            self.component_enabled(self.args.do_mantlui_auth),
+                            True)
+
+
+class Mesos(Component):  # Mesos should always come after any frameworks
+    def check(self):
+        return [self.check_security, self.framework_auth, self.follower_auth,
+                self.deprecate]
+
+    def check_security(self):
+        "check security"
+        self.toggle_boolean('do_mesos_ssl',
+                            self.component_enabled(self.args.do_mesos_ssl),
+                            True)
+        self.toggle_boolean('do_mesos_auth',
+                            self.component_enabled(self.args.do_mesos_auth),
+                            True)
+        self.toggle_boolean(
+            'do_mesos_follower_auth',
+            self.component_enabled(self.args.do_mesos_follower_auth), True)
+        self.toggle_boolean(
+            'do_mesos_framework_auth',
+            self.component_enabled(self.args.do_mesos_framework_auth), True)
+        self.toggle_boolean(
+            'do_mesos_iptables', self.component_enabled(
+                self.args.do_mesos_iptables and self.args.iptables), True)
+
+    def framework_auth(self):
+        "framework auth"
+        with self.modify_security() as config:
+            if 'marathon_principal' in config and 'marathon_secret' in config:
+                config.setdefault('mesos_credentials', [])
+                credential = {
+                    'principal': config['marathon_principal'],
+                    'secret': config['marathon_secret'],
+                }
+                if credential not in config['mesos_credentials']:
+                    config['mesos_credentials'].append(credential)
+                    print('set auth for Marathon')
+            if 'chronos_principal' in config and 'chronos_secret' in config:
+                #                config.setdefault('mesos_credentials', [])
+                credential = {
+                    'principal': config['chronos_principal'],
+                    'secret': config['chronos_secret'],
+                }
+                if credential not in config['mesos_credentials']:
+                    config['mesos_credentials'].append(credential)
+                    print('set auth for Chronos')
+            if 'mantl_api_principal' in config and 'mantl_api_secret' in config:
+                credential = {
+                    'principal': config['mantl_api_principal'],
+                    'secret': config['mantl_api_secret'],
+                }
+                if credential not in config['mesos_credentials']:
+                    config['mesos_credentials'].append(credential)
+                    print('set auth for Mantl API')
+
+    def follower_auth(self):
+        "follower auth"
+        with self.modify_security() as config:
+            config.setdefault('mesos_follower_principal', 'follower')
+            config.setdefault('mesos_follower_secret', self.random())
+            print('enabled follower auth')
+
+    def deprecate(self):
+        "remove deprecated settings"
+        with self.modify_security() as config:
+            auth_frameworks = config.pop("mesos_authenticate_frameworks", None)
+            if auth_frameworks is not None:
+                print(
+                    'removed mesos_authenticate_frameworks. This value is now automatically generated - see the docs.')
+
+            auth_followers = config.pop("mesos_authenticate_followers", None)
+            if auth_followers is not None:
+                print(
+                    'removed mesos_authenticate_followers. This value is now automatically generated - see the docs.')
+
+            # remove follower credential from credential list
+            try:
+                credential_idx = config['mesos_credentials'].index({
+                    'principal': config['mesos_follower_principal'],
+                    'secret': config['mesos_follower_secret']
+                })
+            except ValueError:
+                credential_idx = None
+
+            if credential_idx is not None:
+                del config['mesos_credentials'][credential_idx]
+                print(
+                    'removed follower credentials from credential list - it is now a separate setting.')
+
+
+def main(args):
+    for cls in Component.__subclasses__():
+        component = cls(args)
+
+        print(' {} '.format(cls.__name__).center(40, '='))
+        for item in component.check():
+            print('----> {}'.format(item.__doc__))
+            item()
+
+    print('=' * 40)
+    print("""\
+Wrote security settings to {path}. Include them in your Ansible run like this:
+
+    ansible-playbook your-playbook.yml -e @{path}""".format(
+        path=SECURITY_FILE, ))
+
+
+if __name__ == '__main__':
+    main(parser.parse_args())

@@ -1,0 +1,33 @@
+---
+- name: reload marathon
+  sudo: yes
+  command: systemctl daemon-reload
+  notify:
+    - wait for marathon to listen
+
+- name: restart marathon
+  sudo: yes
+  command: systemctl restart marathon
+  notify:
+    - wait for marathon to listen
+
+- name: wait for marathon to listen
+  command: /usr/local/bin/marathon-wait-for-listen.sh
+
+- name: reload consul
+  sudo: yes
+  command: "{{ consul_bin }} reload"
+
+- name: restart nginx-marathon
+  sudo: yes
+  command: systemctl restart nginx-marathon
+
+- name: reload nginx-marathon
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: restart collectd
+  sudo: yes
+  service:
+    name: collectd
+    state: restarted
