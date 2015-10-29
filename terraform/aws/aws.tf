@@ -10,9 +10,12 @@ variable "short_name" {default = "mi"}
 variable "source_ami" { }
 variable "ssh_key" {default = "~/.ssh/id_rsa.pub"}
 variable "ssh_username"  {default = "centos"}
+variable "master_count" {default = "3"}
+variable "master_type" {default = "m1.small"}
 variable "worker_count" {default = "1"}
 variable "worker_type" {default = "m1.small"}
 variable "control_volume_size" {default = "20"} # size is in gigabytes
+variable "master_volume_size" {default = "20"} # size is in gigabytes
 variable "worker_volume_size" {default = "20"} # size is in gigabytes
 
 resource "aws_vpc" "main" {
@@ -103,6 +106,35 @@ resource "aws_volume_attachment" "mi-control-nodes-glusterfs-attachment" {
   force_detach = true
 }
 
+resource "aws_instance" "mi-master-nodes" {
+  ami = "${var.source_ami}"
+  availability_zone = "${var.availability_zone}"
+  instance_type = "${var.master_type}"
+  count = "${var.master_count}"
+
+  vpc_security_group_ids = ["${aws_security_group.master.id}",
+    "${aws_vpc.main.default_security_group_id}"]
+
+
+  key_name = "${aws_key_pair.deployer.key_name}"
+
+  associate_public_ip_address=true
+
+  subnet_id = "${aws_subnet.main.id}"
+
+  root_block_device {
+    delete_on_termination = true
+    volume_size = "${var.master_volume_size}"
+  }
+
+  tags {
+    Name = "${var.short_name}-master-${format("%03d", count.index+1)}"
+    sshUser = "${var.ssh_username}"
+    role = "master"
+    dc = "${var.datacenter}"
+  }
+}
+
 resource "aws_instance" "mi-worker-nodes" {
   ami = "${var.source_ami}"
   availability_zone = "${var.availability_zone}"
@@ -131,6 +163,8 @@ resource "aws_instance" "mi-worker-nodes" {
     dc = "${var.datacenter}"
   }
 }
+
+
 
 resource "aws_security_group" "control" {
   name = "${var.short_name}-control"
@@ -175,6 +209,62 @@ resource "aws_security_group" "control" {
   ingress { # Chronos
     from_port = 4400
     to_port = 4400
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress { # Consul
+    from_port = 8500
+    to_port = 8500
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress { # ICMP
+    from_port=-1
+    to_port=-1
+    protocol = "icmp"
+    cidr_blocks=["0.0.0.0/0"]
+  }
+
+}
+
+resource "aws_security_group" "master" {
+  name = "${var.short_name}-master"
+  description = "Allow inbound traffic for worker nodes"
+  vpc_id="${aws_vpc.main.id}"
+
+  ingress { # SSH
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress { # HTTP
+    from_port = 80
+    to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress { # HTTPS
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress { # Mesos
+    from_port = 5050
+    to_port = 5050
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress { # Marathon
+    from_port = 8080
+    to_port = 8080
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -258,6 +348,10 @@ resource "aws_key_pair" "deployer" {
 
 output "control_ips" {
   value = "${join(\",\", aws_instance.mi-control-nodes.*.public_ip)}"
+}
+
+output "master_ips" {
+  value = "${join(\",\", aws_instance.mi-master-nodes.*.public_ip)}"
 }
 
 output "worker_ips" {
