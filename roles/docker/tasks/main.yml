@@ -26,7 +26,7 @@
     state: present
     update_cache: yes
   with_items:
-    - docker-engine-1.9.0
+    - docker-engine
   tags:
     - docker
     - bootstrap
