@@ -21,6 +21,8 @@
 
 - include: docker_py.yml
 
+- include: rc_local.yml
+
 - include: ssl.yml
 
 - include: users.yml

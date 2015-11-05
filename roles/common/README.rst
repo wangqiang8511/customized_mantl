@@ -28,3 +28,9 @@ Variables
    The domain component to add to hosts in /etc/hosts
 
    default: ``novalocal``
+
+.. data:: default_dns
+
+   The the dns server in /etc/resolv.conf
+
+   default: ``10.0.0.2``
