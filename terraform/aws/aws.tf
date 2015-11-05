@@ -2,7 +2,8 @@ variable "availability_zone" {}
 variable "control_count" {default = "3"}
 variable "control_type" {default = "m1.small"}
 variable "datacenter" {default = "aws"}
-variable "glusterfs_volume_size" {default = "100"} # size is in gigabytes
+variable "addtional_volume_size" {default = "100"} # size is in gigabytes
+variable "shared_volume_size" {default = "100"} # size is in gigabytes
 variable "long_name" {default = "microservices-infastructure"}
 variable "network_ipv4" {default = "10.0.0.0/16"}
 variable "network_subnet_ip4" {default = "10.0.0.0/16"}
@@ -60,14 +61,25 @@ resource "aws_main_route_table_association" "main" {
   route_table_id = "${aws_route_table.main.id}"
 }
 
-resource "aws_ebs_volume" "mi-control-glusterfs" {
+resource "aws_ebs_volume" "mi-control-addtional" {
   availability_zone = "${var.availability_zone}"
   count = "${var.control_count}"
-  size = "${var.glusterfs_volume_size}"
+  size = "${var.addtional_volume_size}"
   type = "gp2"
 
   tags {
-    Name = "${var.short_name}-control-glusterfs-${format("%02d", count.index+1)}"
+    Name = "${var.short_name}-control-addtional-${format("%02d", count.index+1)}"
+  }
+}
+
+resource "aws_ebs_volume" "mi-control-share" {
+  availability_zone = "${var.availability_zone}"
+  count = "${var.control_count}"
+  size = "${var.addtional_volume_size}"
+  type = "gp2"
+
+  tags {
+    Name = "${var.short_name}-control-share-${format("%02d", count.index+1)}"
   }
 }
 
@@ -98,12 +110,31 @@ resource "aws_instance" "mi-control-nodes" {
   }
 }
 
-resource "aws_volume_attachment" "mi-control-nodes-glusterfs-attachment" {
+resource "aws_volume_attachment" "mi-control-nodes-addtional-attachment" {
   count = "${var.control_count}"
   device_name = "xvdh"
   instance_id = "${element(aws_instance.mi-control-nodes.*.id, count.index)}"
-  volume_id = "${element(aws_ebs_volume.mi-control-glusterfs.*.id, count.index)}"
+  volume_id = "${element(aws_ebs_volume.mi-control-addtional.*.id, count.index)}"
   force_detach = true
+}
+
+resource "aws_volume_attachment" "mi-control-nodes-share-attachment" {
+  count = "${var.control_count}"
+  device_name = "xvdi"
+  instance_id = "${element(aws_instance.mi-control-nodes.*.id, count.index)}"
+  volume_id = "${element(aws_ebs_volume.mi-control-share.*.id, count.index)}"
+  force_detach = true
+}
+
+resource "aws_ebs_volume" "mi-master-addtional" {
+  availability_zone = "${var.availability_zone}"
+  count = "${var.master_count}"
+  size = "${var.addtional_volume_size}"
+  type = "gp2"
+
+  tags {
+    Name = "${var.short_name}-master-addtional-${format("%02d", count.index+1)}"
+  }
 }
 
 resource "aws_instance" "mi-master-nodes" {
@@ -132,6 +163,25 @@ resource "aws_instance" "mi-master-nodes" {
     sshUser = "${var.ssh_username}"
     role = "master"
     dc = "${var.datacenter}"
+  }
+}
+
+resource "aws_volume_attachment" "mi-master-nodes-addtional-attachment" {
+  count = "${var.master_count}"
+  device_name = "xvdh"
+  instance_id = "${element(aws_instance.mi-master-nodes.*.id, count.index)}"
+  volume_id = "${element(aws_ebs_volume.mi-master-addtional.*.id, count.index)}"
+  force_detach = true
+}
+
+resource "aws_ebs_volume" "mi-worker-addtional" {
+  availability_zone = "${var.availability_zone}"
+  count = "${var.worker_count}"
+  size = "${var.addtional_volume_size}"
+  type = "gp2"
+
+  tags {
+    Name = "${var.short_name}-worker-addtional-${format("%02d", count.index+1)}"
   }
 }
 
@@ -164,7 +214,13 @@ resource "aws_instance" "mi-worker-nodes" {
   }
 }
 
-
+resource "aws_volume_attachment" "mi-worker-nodes-addtional-attachment" {
+  count = "${var.worker_count}"
+  device_name = "xvdh"
+  instance_id = "${element(aws_instance.mi-worker-nodes.*.id, count.index)}"
+  volume_id = "${element(aws_ebs_volume.mi-worker-addtional.*.id, count.index)}"
+  force_detach = true
+}
 
 resource "aws_security_group" "control" {
   name = "${var.short_name}-control"
@@ -192,39 +248,41 @@ resource "aws_security_group" "control" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress { # Mesos
-    from_port = 5050
-    to_port = 5050
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress { # Marathon
-    from_port = 8080
-    to_port = 8080
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress { # Chronos
-    from_port = 4400
-    to_port = 4400
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress { # Consul
-    from_port = 8500
-    to_port = 8500
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   ingress { # ICMP
     from_port=-1
     to_port=-1
     protocol = "icmp"
     cidr_blocks=["0.0.0.0/0"]
+  }
+
+  ingress { # Control
+    from_port=0
+    to_port=65535
+    protocol = "tcp"
+    self = true
+  }
+
+  ingress { # Control
+    from_port=0
+    to_port=65535
+    protocol = "udp"
+    self = true
+  }
+
+  ingress { # Other
+    from_port=0
+    to_port=65535
+    protocol = "tcp"
+    security_groups = ["${aws_security_group.master.id}", 
+                       "${aws_security_group.worker.id}"]
+  }
+
+  ingress { # Other
+    from_port=0
+    to_port=65535
+    protocol = "tcp"
+    security_groups = ["${aws_security_group.master.id}", 
+                       "${aws_security_group.worker.id}"]
   }
 
 }
@@ -255,32 +313,41 @@ resource "aws_security_group" "master" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress { # Mesos
-    from_port = 5050
-    to_port = 5050
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress { # Marathon
-    from_port = 8080
-    to_port = 8080
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress { # Consul
-    from_port = 8500
-    to_port = 8500
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   ingress { # ICMP
     from_port=-1
     to_port=-1
     protocol = "icmp"
     cidr_blocks=["0.0.0.0/0"]
+  }
+
+  ingress { # Master
+    from_port=0
+    to_port=65535
+    protocol = "tcp"
+    self = true
+  }
+
+  ingress { # Master
+    from_port=0
+    to_port=65535
+    protocol = "udp"
+    self = true
+  }
+
+  ingress { # Other
+    from_port=0
+    to_port=65535
+    protocol = "tcp"
+    security_groups = ["${aws_security_group.control.id}", 
+                       "${aws_security_group.worker.id}"]
+  }
+
+  ingress { # Other
+    from_port=0
+    to_port=65535
+    protocol = "tcp"
+    security_groups = ["${aws_security_group.control.id}", 
+                       "${aws_security_group.worker.id}"]
   }
 
 }
@@ -311,32 +378,41 @@ resource "aws_security_group" "worker" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  ingress { # Mesos
-    from_port = 5050
-    to_port = 5050
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress { # Marathon
-    from_port = 8080
-    to_port = 8080
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress { # Consul
-    from_port = 8500
-    to_port = 8500
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   ingress { # ICMP
     from_port=-1
     to_port=-1
     protocol = "icmp"
     cidr_blocks=["0.0.0.0/0"]
+  }
+
+  ingress { # Worker
+    from_port=0
+    to_port=65535
+    protocol = "tcp"
+    self = true
+  }
+
+  ingress { # Worker
+    from_port=0
+    to_port=65535
+    protocol = "udp"
+    self = true
+  }
+
+  ingress { # Other
+    from_port=0
+    to_port=65535
+    protocol = "tcp"
+    security_groups = ["${aws_security_group.control.id}", 
+                       "${aws_security_group.master.id}"]
+  }
+
+  ingress { # Other
+    from_port=0
+    to_port=65535
+    protocol = "tcp"
+    security_groups = ["${aws_security_group.control.id}", 
+                       "${aws_security_group.master.id}"]
   }
 
 }
@@ -347,13 +423,13 @@ resource "aws_key_pair" "deployer" {
 }
 
 output "control_ips" {
-  value = "${join(\",\", aws_instance.mi-control-nodes.*.public_ip)}"
+  value = "${join(\",\", aws_instance.mi-control-nodes.*.private_ip)}"
 }
 
 output "master_ips" {
-  value = "${join(\",\", aws_instance.mi-master-nodes.*.public_ip)}"
+  value = "${join(\",\", aws_instance.mi-master-nodes.*.private_ip)}"
 }
 
 output "worker_ips" {
-  value = "${join(\",\", aws_instance.mi-worker-nodes.*.public_ip)}"
+  value = "${join(\",\", aws_instance.mi-worker-nodes.*.private_ip)}"
 }
