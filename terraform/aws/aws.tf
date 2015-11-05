@@ -89,6 +89,7 @@ resource "aws_instance" "mi-control-nodes" {
   instance_type = "${var.control_type}"
   count = "${var.control_count}"
   vpc_security_group_ids = ["${aws_security_group.control.id}",
+    "${aws_security_group.inner.id}",
     "${aws_vpc.main.default_security_group_id}"]
 
   key_name = "${aws_key_pair.deployer.key_name}"
@@ -144,6 +145,7 @@ resource "aws_instance" "mi-master-nodes" {
   count = "${var.master_count}"
 
   vpc_security_group_ids = ["${aws_security_group.master.id}",
+    "${aws_security_group.inner.id}",
     "${aws_vpc.main.default_security_group_id}"]
 
 
@@ -192,6 +194,7 @@ resource "aws_instance" "mi-worker-nodes" {
   count = "${var.worker_count}"
 
   vpc_security_group_ids = ["${aws_security_group.worker.id}",
+    "${aws_security_group.inner.id}",
     "${aws_vpc.main.default_security_group_id}"]
 
 
@@ -254,37 +257,6 @@ resource "aws_security_group" "control" {
     protocol = "icmp"
     cidr_blocks=["0.0.0.0/0"]
   }
-
-  ingress { # Control
-    from_port=0
-    to_port=65535
-    protocol = "tcp"
-    self = true
-  }
-
-  ingress { # Control
-    from_port=0
-    to_port=65535
-    protocol = "udp"
-    self = true
-  }
-
-  ingress { # Other
-    from_port=0
-    to_port=65535
-    protocol = "tcp"
-    security_groups = ["${aws_security_group.master.id}", 
-                       "${aws_security_group.worker.id}"]
-  }
-
-  ingress { # Other
-    from_port=0
-    to_port=65535
-    protocol = "tcp"
-    security_groups = ["${aws_security_group.master.id}", 
-                       "${aws_security_group.worker.id}"]
-  }
-
 }
 
 resource "aws_security_group" "master" {
@@ -319,37 +291,6 @@ resource "aws_security_group" "master" {
     protocol = "icmp"
     cidr_blocks=["0.0.0.0/0"]
   }
-
-  ingress { # Master
-    from_port=0
-    to_port=65535
-    protocol = "tcp"
-    self = true
-  }
-
-  ingress { # Master
-    from_port=0
-    to_port=65535
-    protocol = "udp"
-    self = true
-  }
-
-  ingress { # Other
-    from_port=0
-    to_port=65535
-    protocol = "tcp"
-    security_groups = ["${aws_security_group.control.id}", 
-                       "${aws_security_group.worker.id}"]
-  }
-
-  ingress { # Other
-    from_port=0
-    to_port=65535
-    protocol = "tcp"
-    security_groups = ["${aws_security_group.control.id}", 
-                       "${aws_security_group.worker.id}"]
-  }
-
 }
 
 resource "aws_security_group" "worker" {
@@ -384,37 +325,26 @@ resource "aws_security_group" "worker" {
     protocol = "icmp"
     cidr_blocks=["0.0.0.0/0"]
   }
+}
 
-  ingress { # Worker
+resource "aws_security_group" "inner" {
+  name = "${var.short_name}-inner"
+  description = "Allow inbound traffic for all ports"
+  vpc_id="${aws_vpc.main.id}"
+
+  ingress { # Control
     from_port=0
     to_port=65535
     protocol = "tcp"
     self = true
   }
 
-  ingress { # Worker
+  ingress { # Control
     from_port=0
     to_port=65535
     protocol = "udp"
     self = true
   }
-
-  ingress { # Other
-    from_port=0
-    to_port=65535
-    protocol = "tcp"
-    security_groups = ["${aws_security_group.control.id}", 
-                       "${aws_security_group.master.id}"]
-  }
-
-  ingress { # Other
-    from_port=0
-    to_port=65535
-    protocol = "tcp"
-    security_groups = ["${aws_security_group.control.id}", 
-                       "${aws_security_group.master.id}"]
-  }
-
 }
 
 resource "aws_key_pair" "deployer" {
