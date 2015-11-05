@@ -1,6 +1,6 @@
 ---
 - name: update-ca-trust
   sudo: yes
-  command: update-ca-trust
+  command: update-ca-certificates
 
 - include: supervisord.yml
