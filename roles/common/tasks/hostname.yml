@@ -5,4 +5,4 @@
 
 - name: make hostname -i functional
   sudo: yes
-  lineinfile: "dest=/etc/hosts regexp='{{ inventory_hostname }}' line='{{ ec2_private_ip_address }} {{ inventory_hostname }}'"
+  lineinfile: "dest=/etc/hosts regexp='{{ inventory_hostname }}' line='{{ private_ipv4 }} {{ inventory_hostname }}'"
