@@ -1,0 +1,6 @@
+---
+- name: install docker-py
+  sudo: yes
+  pip: "name=docker-py"
+  tags:
+    - bootstrap

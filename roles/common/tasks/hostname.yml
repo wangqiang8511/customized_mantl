@@ -1,0 +1,8 @@
+---
+- name: change hostname
+  sudo: yes
+  hostname: "name={{ inventory_hostname }}"
+
+- name: make hostname -i functional
+  sudo: yes
+  lineinfile: "dest=/etc/hosts regexp='{{ inventory_hostname }}' line='{{ ec2_private_ip_address }} {{ inventory_hostname }}'"

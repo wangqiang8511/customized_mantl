@@ -1,85 +1,26 @@
 ---
-# default is etc/utc in build 20141129 [http://cloud.centos.org/centos/7/images/]
-- name: set timezone to etc/utc
-  sudo: yes
-  file:
-    src: /usr/share/zoneinfo/Etc/UTC
-    dest: /etc/localtime
-    state: link
-    force: yes
+- include: resolv.yml
 
-# add hosts to /etc/hosts
-- name: configure hosts file
-  sudo: yes
-  lineinfile:
-    dest: /etc/hosts
-    regexp: "^{{ hostvars[item].private_ipv4 }} {{ item }}{% if use_host_domain %} {{ item }}.{{ host_domain }}{% endif %}$"
-    line: "{{ hostvars[item].private_ipv4 }} {{ item }}{% if use_host_domain %} {{ item }}.{{ host_domain}}{% endif %}"
-    state: present
-  when: hostvars[item].private_ipv4 is defined
-  with_items: groups['all']
+- include: pkg_install.yml
+  when: ansible_os_family == 'RedHat'
 
-- name: clean hosts file
-  sudo: yes
-  lineinfile:
-    dest: /etc/hosts
-    regexp: "{{ item }}"
-    state: absent
-  with_items:
-    - '^127\.0\.0\.1(\s+){{ inventory_hostname }}.*'
-    - '^::1(\s+){{ inventory_hostname }}.*'
+- include: pkg_install_debian.yml
+  when: ansible_os_family == 'Debian'
 
-- name: install system utilities
-  sudo: yes
-  yum:
-    name: "{{ item }}"
-    state: latest
-  with_items:
-    - httpd-tools
-    - nc
-    - openssh
-    - policycoreutils-python
-    - unzip
-  tags:
-    - bootstrap
+- include: hostname.yml
 
-- name: disable firewalld
-  sudo: yes
-  service:
-    name: firewalld
-    enabled: false
-    state: stopped
-  register: command_result
-  failed_when: "command_result|failed and 'No such file or directory' not in command_result.msg"
+- include: ip_forward.yml
 
-- name: enable EPEL repo
-  sudo: yes
-  yum:
-    name: epel-release
-    state: latest
+- include: ulimit.yml
 
-- name: install pip
-  sudo: yes
-  yum:
-    name: python-pip
-    state: latest
+- include: supervisord.yml
 
-- name: update setuptools and pip
-  sudo: yes
-  pip:
-    name: "{{ item.name }}"
-    state: latest
-  with_items:
-    - name: pip
-    - name: setuptools
+- include: lvm.yml
 
-- name: install distributive
-  sudo: yes
-  yum:
-    name: "https://bintray.com/artifact/download/ciscocloud/rpm/distributive-0.2.1-5.el7.centos.x86_64.rpm"
-    state: present
-  tags:
-    - distributive
+- include: boto.yml
+
+- include: docker_py.yml
+
+- include: ssl.yml
 
 - include: users.yml
-- include: ssl.yml

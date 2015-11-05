@@ -1,0 +1,9 @@
+---
+- name: develop tools
+  sudo: yes
+  yum: name="@Development tools" state=present
+
+- name: install system pkgs
+  sudo: yes
+  yum: "name={{ item }} state=present"
+  with_items: system_pkgs

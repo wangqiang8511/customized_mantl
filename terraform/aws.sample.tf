@@ -8,8 +8,8 @@ module "aws-dc" {
   control_type = "t2.small"
   master_type = "t2.small"
   worker_type = "t2.small"
-  ssh_username = "ubutnu"
-  source_ami = "ami-c5ff89af"
+  ssh_username = "ubuntu"
+  source_ami = "ami-d05e75b8"
   control_count = 3
   master_count = 3
   worker_count = 1
