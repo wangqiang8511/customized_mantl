@@ -4,7 +4,6 @@
   file:
     path: /opt/bin
     state: directory
-  when: flocker_mode == "control"
   tags:
     - docker
     - flocker
