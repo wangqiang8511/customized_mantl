@@ -1,4 +1,14 @@
 ---
+- name: ensure customized bin
+  sudo: yes
+  file:
+    path: /opt/bin
+    state: directory
+  when: flocker_mode == "control"
+  tags:
+    - docker
+    - flocker
+
 # Setup flocker apt repo
 - name: install apt https tool
   sudo: yes
@@ -49,7 +59,7 @@
     - docker
     - flocker
 
-- name: setup cluster cert in control node
+- name: setup flocker cluster cert
   sudo: yes
   copy:
     src: ssl/certs/flocker-cluster.crt
@@ -58,44 +68,74 @@
     - docker
     - flocker
 
-- name: setup control service cert in control node
+- name: setup flocker cluster key
   sudo: yes
   copy:
-    src: ssl/certs/flocker-control-service.crt
-    dest: /etc/flocker/control-service.crt
-  when: flocker_mode == "control"
-  tags:
-    - docker
-    - flocker
-
-- name: setup control service key in control node
-  sudo: yes
-  copy:
-    src: ssl/private/flocker-control-service.key
-    dest: /etc/flocker/control-service.key
+    src: ssl/private/flocker-cluster.key
+    dest: /etc/flocker/cluster.key
     mode: 0600
-  when: flocker_mode == "control"
   tags:
     - docker
     - flocker
 
-- name: setup node cert in agent node
+# Generate control service cert and key on node
+- name: check flocker control service cert
   sudo: yes
-  copy:
-    src: ssl/certs/flocker-node.crt
-    dest: /etc/flocker/node.crt
+  stat: path="/etc/flocker/control-service.crt"
+  when: flocker_mode == "control"
+  register: check_flocker_control_service_crt
+  tags:
+    - docker
+    - flocker
+
+- name: upload geneate control service cert script
+  sudo: yes
+  template:
+    src: generate_control_service_certs.sh.j2
+    dest: /opt/bin/generate_control_service_certs.sh
+    mode: 0755
+  when: flocker_mode == "control" and 
+        check_flocker_control_service_crt.stat.exists == False
+  tags:
+    - docker
+    - flocker
+
+- name: generate flocker control service cert and key
+  sudo: yes
+  shell: /opt/bin/generate_control_service_certs.sh
+  when: flocker_mode == "control" and 
+        check_flocker_control_service_crt.stat.exists == False
+  tags:
+    - docker
+    - flocker
+
+# Generate node cert and key on node
+- name: check flocker node cert
+  sudo: yes
+  stat: path="/etc/flocker/node.crt"
+  register: check_flocker_node_crt
   when: flocker_mode == "agent"
   tags:
     - docker
     - flocker
 
-- name: setup node key in agent node
+- name: upload geneate node cert script
   sudo: yes
-  copy:
-    src: ssl/private/flocker-node.key
-    dest: /etc/flocker/node.key
-    mode: 0600
-  when: flocker_mode == "agent"
+  template:
+    src: generate_node_certs.sh.j2
+    dest: /opt/bin/generate_node_certs.sh
+    mode: 0755
+  when: flocker_mode == "agent" and 
+        check_flocker_node_crt.stat.exists == False
+  tags:
+    - docker
+    - flocker
+
+- name: generate flocker node cert and key
+  sudo: yes
+  shell: /opt/bin/generate_node_certs.sh
+  when: flocker_mode == "agent" and 
+        check_flocker_node_crt.stat.exists == False
   tags:
     - docker
     - flocker

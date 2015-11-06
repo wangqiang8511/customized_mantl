@@ -1,0 +1,11 @@
+#!/bin/bash
+
+TEMP_DIR=/tmp/flocker
+
+rm -rf $TEMP_DIR
+mkdir -p $TEMP_DIR
+
+flocker-ca create-control-certificate -i /etc/flocker -o $TEMP_DIR {{ flocker_control_node }}
+mv $TEMP_DIR/control-{{ flocker_control_node }}.key /etc/flocker/control-service.key
+mv $TEMP_DIR/control-{{ flocker_control_node }}.crt /etc/flocker/control-service.crt
+chmod 0600 /etc/flocker/control-service.key
