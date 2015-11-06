@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+if [ "$(grep -Ei 'debian|buntu|mint' /etc/*release)" ]; then
+    apt-get install -y libffi-dev 
+fi
+
+if [ "$(grep -Ei 'mazon|centos' /etc/*release)" ]; then
+    yum install libffi-devel
+fi
