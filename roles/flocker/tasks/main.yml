@@ -104,6 +104,8 @@
   shell: /opt/bin/generate_control_service_certs.sh
   when: flocker_mode == "control" and 
         check_flocker_control_service_crt.stat.exists == False
+  notify:
+    - restart flocker control service
   tags:
     - docker
     - flocker
@@ -135,6 +137,9 @@
   shell: /opt/bin/generate_node_certs.sh
   when: flocker_mode == "agent" and 
         check_flocker_node_crt.stat.exists == False
+  notify:
+    - restart flocker container agent service
+    - restart flocker dataset agent service
   tags:
     - docker
     - flocker
