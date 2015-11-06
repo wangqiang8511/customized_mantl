@@ -34,5 +34,5 @@
   sudo: yes
   supervisorctl: 
     name: flocker_ui 
-    state: started
+    state: present
     supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
