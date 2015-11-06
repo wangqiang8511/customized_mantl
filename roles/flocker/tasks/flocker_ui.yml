@@ -1,7 +1,7 @@
 ---
 # Setup flocker_ui script
 - name: ensure customized bin
-  sudo:
+  sudo: yes
   file:
     path: /opt/bin
     state: directory
@@ -24,7 +24,7 @@
   sudo: yes
   template:
     src: flocker_ui_supervisord.conf.j2
-    dest: /etc/supervisord/flocker_ui.conf
+    dest: "{{ supervisord_conf_dir }}/flocker_ui.conf"
   notify: restart flocker ui
   tags:
     - docker

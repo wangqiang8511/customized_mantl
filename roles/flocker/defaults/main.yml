@@ -1,1 +1,3 @@
 flocker_ui_port: 4080
+supervisord_conf_dir: /etc/supervisord
+supervisord_exec_dir: /usr/local/bin
