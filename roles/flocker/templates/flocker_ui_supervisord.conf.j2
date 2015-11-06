@@ -1,0 +1,11 @@
+[program:flocker_ui]
+command= /opt/bin/start_flocker_ui.sh
+autostart=true
+autorestart=true
+redirect_stderr=True
+nodaemon = False
+debug = False
+stdout_logfile = /var/tmp/flocker_ui.out
+stderr_logfile = /var/tmp/flocker_ui.err
+loglevel = "info"
+stopasgroup=true

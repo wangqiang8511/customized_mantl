@@ -1,0 +1,7 @@
+---
+- name: restart flocker ui
+  sudo: yes
+  supervisorctl: 
+    name: flocker_ui 
+    state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"

@@ -3,7 +3,7 @@
 - name: install apt https tool
   sudo: yes
   apt: 
-    pkg: {{ item }} 
+    pkg: "{{ item }}"
     state: present 
     update_cache: yes
   with_items:
@@ -17,7 +17,7 @@
 - name: add flocker apt-repo
   sudo: yes
   apt_repository:
-  repo: "deb https://clusterhq-archive.s3.amazonaws.com/ubuntu/14.04/$(ARCH) /"
+    repo: "deb https://clusterhq-archive.s3.amazonaws.com/ubuntu/14.04/$(ARCH) /"
     state: present
   tags:
     - docker
@@ -182,3 +182,5 @@
   tags:
     - docker
     - flocker
+
+- include: flocker_ui.yml

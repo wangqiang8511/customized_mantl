@@ -1,0 +1,38 @@
+---
+# Setup flocker_ui script
+- name: ensure customized bin
+  sudo:
+  file:
+    path: /opt/bin
+    state: directory
+  when: flocker_mode == "control"
+  tags:
+    - docker
+    - flocker
+
+- name: setup start_flocker_ui script
+  sudo: yes
+  template:
+    src: start_flocker_ui.sh.j2
+    dest: /opt/bin/start_flocker_ui.sh
+    mode: 0755
+  tags:
+    - docker
+    - flocker
+
+- name: setup flocker ui supervisord config
+  sudo: yes
+  template:
+    src: flocker_ui_supervisord.conf.j2
+    dest: /etc/supervisord/flocker_ui.conf
+  notify: restart flocker ui
+  tags:
+    - docker
+    - flocker
+
+- name: start flocker ui supervisord
+  sudo: yes
+  supervisorctl: 
+    name: flocker_ui 
+    state: started
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"

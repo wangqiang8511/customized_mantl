@@ -1,0 +1,18 @@
+#!/bin/bash
+
+CONTAINER_NAME=flocker-ui
+CONTROL_SERVICE={{ flocker_control_node }}
+USERNAME=plugin
+CERTS=/etc/flocker
+FLOCKER_UI_PORT={{ flocker_ui_port }}
+
+docker rm -f $CONTAINER_NAME
+docker run --name $CONTAINER_NAME \
+    -d -p $FLOCKER_UI_PORT:80 \
+    -e CONTROL_SERVICE=$CONTROL_SERVICE \
+    -e USERNAME=$USERNAME \
+    -e CERTS_PATH=/ \
+    -v $CERTS/$USERNAME.key:/$USERNAME.key \
+    -v $CERTS/$USERNAME.crt:/$USERNAME.crt \
+    -v $CERTS/cluster.crt:/cluster.crt \
+    clusterhq/experimental-volumes-gui
