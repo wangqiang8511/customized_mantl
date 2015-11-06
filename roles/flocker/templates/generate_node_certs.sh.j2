@@ -5,7 +5,7 @@ TEMP_DIR=/tmp/flocker
 rm -rf $TEMP_DIR
 mkdir -p $TEMP_DIR
 
-flocker-ca create-node-certificate -i /etc/flocker -o $TEMP_DIR {{ flocker_control_node }}
+flocker-ca create-node-certificate -i /etc/flocker -o $TEMP_DIR
 mv $(ls $TEMP_DIR/*.crt) /etc/flocker/node.crt
 mv $(ls $TEMP_DIR/*.key) /etc/flocker/node.key
 chmod 0600 /etc/flocker/node.key
