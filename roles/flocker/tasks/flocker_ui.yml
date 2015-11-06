@@ -16,6 +16,7 @@
     src: start_flocker_ui.sh.j2
     dest: /opt/bin/start_flocker_ui.sh
     mode: 0755
+  when: flocker_mode == "control"
   tags:
     - docker
     - flocker
@@ -26,6 +27,7 @@
     src: flocker_ui_supervisord.conf.j2
     dest: "{{ supervisord_conf_dir }}/flocker_ui.conf"
   notify: restart flocker ui
+  when: flocker_mode == "control"
   tags:
     - docker
     - flocker
@@ -36,3 +38,7 @@
     name: flocker_ui 
     state: present
     supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  when: flocker_mode == "control"
+  tags:
+    - docker
+    - flocker
