@@ -1,0 +1,184 @@
+---
+# Setup flocker apt repo
+- name: install apt https tool
+  sudo: yes
+  apt: 
+    pkg: {{ item }} 
+    state: present 
+    update_cache: yes
+  with_items:
+    - apt-transport-https
+    - software-properties-common
+  tags:
+    - docker
+    - flocker
+    - bootstrap
+
+- name: add flocker apt-repo
+  sudo: yes
+  apt_repository:
+  repo: "deb https://clusterhq-archive.s3.amazonaws.com/ubuntu/14.04/$(ARCH) /"
+    state: present
+  tags:
+    - docker
+    - flocker
+    - bootstrap
+
+- name: install flocker packages
+  sudo: yes
+  apt:
+    name: "{{ item }}"
+    state: present
+    force: yes
+  with_items:
+    - clusterhq-flocker-node
+    - clusterhq-flocker-cli
+    - clusterhq-flocker-docker-plugin
+  tags:
+    - docker
+    - flocker
+    - bootstrap
+
+# Generate the cert
+- name: create cert dir 
+  sudo: yes
+  file:
+    path: /etc/flocker
+    state: directory
+  tags:
+    - docker
+    - flocker
+
+- name: setup cluster cert in control node
+  sudo: yes
+  copy:
+    src: ssl/certs/flocker-cluster.crt
+    dest: /etc/flocker/cluster.crt
+  when: flocker_mode == "control"
+  tags:
+    - docker
+    - flocker
+
+- name: setup control service cert in control node
+  sudo: yes
+  copy:
+    src: ssl/certs/flocker-control-service.crt
+    dest: /etc/flocker/control-service.crt
+  when: flocker_mode == "control"
+  tags:
+    - docker
+    - flocker
+
+- name: setup control service key in control node
+  sudo: yes
+  copy:
+    src: ssl/private/flocker-control-service.key
+    dest: /etc/flocker/control-service.key
+    mode: 0600
+  when: flocker_mode == "control"
+  tags:
+    - docker
+    - flocker
+
+- name: setup node cert in agent node
+  sudo: yes
+  copy:
+    src: ssl/certs/flocker-node.crt
+    dest: /etc/flocker/node.crt
+  when: flocker_mode == "agent"
+  tags:
+    - docker
+    - flocker
+
+- name: setup node key in agent node
+  sudo: yes
+  copy:
+    src: ssl/private/flocker-node.key
+    dest: /etc/flocker/node.key
+    mode: 0600
+  when: flocker_mode == "agent"
+  tags:
+    - docker
+    - flocker
+
+- name: setup plugin cert in agent node
+  sudo: yes
+  copy:
+    src: ssl/certs/flocker-plugin.crt
+    dest: /etc/flocker/plugin.crt
+  when: flocker_mode == "agent"
+  notify:
+    - restart flocker dataset agent service
+    - restart flocker container agent service
+    - restart flocker docker plugin
+  tags:
+    - docker
+    - flocker
+
+- name: setup plugin key in agent node
+  sudo: yes
+  copy:
+    src: ssl/private/flocker-plugin.key
+    dest: /etc/flocker/plugin.key
+    mode: 0600
+  when: flocker_mode == "agent"
+  tags:
+    - docker
+    - flocker
+
+# Config flocker agent
+- name: config flocker agent 
+  sudo: yes
+  template: 
+    src: agent.yml.j2 
+    dest: /etc/flocker/agent.yml
+  when: flocker_mode == "agent"
+  tags:
+    - docker
+    - flocker
+
+# Start flocker control serivce
+- name: enable flocker control service
+  sudo: yes
+  service:
+    name: flocker-control
+    enabled: yes
+    state: started
+  when: flocker_mode == "control"
+  tags:
+    - docker
+    - flocker
+
+# Start flocker agent service
+- name: enable flocker dataset agent service
+  sudo: yes
+  service:
+    name: flocker-dataset-agent
+    enabled: yes
+    state: started
+  when: flocker_mode == "agent"
+  tags:
+    - docker
+    - flocker
+
+- name: enable flocker container agent service
+  sudo: yes
+  service:
+    name: flocker-container-agent
+    enabled: yes
+    state: started
+  when: flocker_mode == "agent"
+  tags:
+    - docker
+    - flocker
+
+- name: enable flocker docker plugin
+  sudo: yes
+  service:
+    name: flocker-docker-plugin 
+    enabled: yes
+    state: started
+  when: flocker_mode == "agent"
+  tags:
+    - docker
+    - flocker

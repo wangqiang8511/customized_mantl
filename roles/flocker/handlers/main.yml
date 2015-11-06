@@ -1,0 +1,37 @@
+---
+- name: restart flocker control service
+  sudo: yes
+  service:
+    name: flocker-control
+    state: restarted
+  tags:
+    - docker
+    - flocker
+
+- name: restart flocker container agent service
+  sudo: yes
+  service:
+    name: flocker-container-agent
+    enabled: yes
+    state: restarted
+  tags:
+    - docker
+    - flocker
+
+- name: restart flocker dataset agent service
+  sudo: yes
+  service:
+    name: flocker-dataset-agent
+    state: restarted
+  tags:
+    - docker
+    - flocker
+
+- name: restart flocker docker plugin
+  sudo: yes
+  service:
+    name: flocker-docker-plugin 
+    state: restarted
+  tags:
+    - docker
+    - flocker
