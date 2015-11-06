@@ -54,7 +54,6 @@
   copy:
     src: ssl/certs/flocker-cluster.crt
     dest: /etc/flocker/cluster.crt
-  when: flocker_mode == "control"
   tags:
     - docker
     - flocker

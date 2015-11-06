@@ -16,6 +16,7 @@
     src: start_flocker_ui.sh.j2
     dest: /opt/bin/start_flocker_ui.sh
     mode: 0755
+  notify: restart flocker ui
   when: flocker_mode == "control"
   tags:
     - docker
