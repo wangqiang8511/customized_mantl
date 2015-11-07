@@ -165,6 +165,10 @@
     dest: /etc/flocker/plugin.key
     mode: 0600
   when: flocker_mode == "agent"
+  notify:
+    - restart flocker dataset agent service
+    - restart flocker container agent service
+    - restart flocker docker plugin
   tags:
     - docker
     - flocker
@@ -176,6 +180,10 @@
     src: agent.yml.j2 
     dest: /etc/flocker/agent.yml
   when: flocker_mode == "agent"
+  notify:
+    - restart flocker dataset agent service
+    - restart flocker container agent service
+    - restart flocker docker plugin
   tags:
     - docker
     - flocker
