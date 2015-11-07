@@ -31,6 +31,18 @@
     - docker
     - bootstrap
 
+# Setup docker default settings
+- name: update docker default settings
+  sudo: yes
+  template:
+    src: default_docker.j2
+    dest: /etc/default/docker
+  notify:
+    - restart docker
+  tags:
+    - docker
+    - bootstrap
+
 - name: enable docker
   sudo: yes
   service:
