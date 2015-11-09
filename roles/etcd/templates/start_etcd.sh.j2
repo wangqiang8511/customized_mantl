@@ -1,0 +1,20 @@
+#!/bin/bash
+
+CONTAINER_NAME=etcd
+
+docker rm -f $CONTAINER_NAME
+docker run --name $CONTAINER_NAME \
+    -i \
+    -p {{ etcd_client_port }}:{{ etcd_client_port }} \
+    -p {{ etcd_peer_port }}:{{ etcd_peer_port }} \
+    -v /data/etcd:/data/etcd:rw \
+    -v /etc/ssl:/etcd/ssl:ro \
+    {{ etcd_image }}:{{ etcd_image_tag }} \
+    -name {{ inventory_hostname }} \
+    -initial-advertise-peer-urls http://{{ private_ipv4 }}:{{ etcd_peer_port }} \
+    -listen-peer-urls http://{{ private_ipv4 }}:{{ etcd_peer_port }} \
+    -listen-client-urls http://{{ private_ipv4 }}:{{ etcd_client_port }} \
+    -advertise-client-urls http://{{ private_ipv4 }}:{{ etcd_client_port }} \
+    -discovery {{ etcd_discovery }} \
+    --cors=* \
+    --data-dir=/data/etcd/{{ inventory_hostname }}.etcd

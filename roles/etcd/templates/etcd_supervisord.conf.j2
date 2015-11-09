@@ -1,0 +1,11 @@
+[program:etcd]
+command= /opt/bin/start_etcd.sh
+autostart=true
+autorestart=true
+redirect_stderr=True
+nodaemon = False
+debug = False
+stdout_logfile = /var/tmp/etcd.out
+stderr_logfile = /var/tmp/etcd.err
+loglevel = "info"
+stopasgroup=true
