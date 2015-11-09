@@ -1,44 +1,36 @@
 ---
-- name: generate systemd unit file
+- name: ensure customized bin
   sudo: yes
-  template:
-    src: etcd.service.j2
-    dest: /usr/lib/systemd/system/etcd.service
-    owner: root
-    group: root
-    mode: 0644
-  notify:
-    - reload systemd
-    - restart etcd
+  file:
+    path: /opt/bin
+    state: directory
   tags:
     - etcd
 
-- name: install consul check script
+- name: setup start_etcd script
   sudo: yes
   template:
-    src: consul-check-etcd-member
-    dest: /usr/local/bin
+    src: start_etcd.sh.j2
+    dest: /opt/bin/start_etcd.sh
     mode: 0755
+  notify: restart etcd
   tags:
     - etcd
 
-- name: register etcd with consul
+- name: setup etcd supervisord config
   sudo: yes
-  copy:
-    src: etcd-service.json
-    dest: /etc/consul
-  notify:
-    - reload consul
+  template:
+    src: etcd_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/etcd.conf"
+  notify: restart etcd
   tags:
     - etcd
 
-- name: enable and start etcd
+- name: start etcd supervisord
   sudo: yes
-  service:
+  supervisorctl: 
     name: etcd
-    enabled: yes
-    state: started
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
   tags:
     - etcd
-
-- meta: flush_handlers
