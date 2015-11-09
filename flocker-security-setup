@@ -6,8 +6,6 @@ rm -rf $TEMP_DIR
 mkdir -p $TEMP_DIR
 
 bin/flocker-ca initialize $1
-bin/flocker-ca create-control-certificate -o $TEMP_DIR $1-control-01.razerdata.com
-bin/flocker-ca create-node-certificate -o $TEMP_DIR
 bin/flocker-ca create-api-certificate -o $TEMP_DIR plugin
 
 mkdir -p ssl/certs
@@ -18,9 +16,3 @@ mv cluster.key ssl/private/flocker-cluster.key
 
 mv $TEMP_DIR/plugin.crt ssl/certs/flocker-plugin.crt
 mv $TEMP_DIR/plugin.key ssl/private/flocker-plugin.key
-
-mv $TEMP_DIR/control-$1-control-01.razerdata.com.crt ssl/certs/flocker-control-service.crt
-mv $TEMP_DIR/control-$1-control-01.razerdata.com.key ssl/private/flocker-control-service.key
-
-mv $(ls $TEMP_DIR/*.crt) ssl/certs/flocker-node.crt
-mv $(ls $TEMP_DIR/*.key) ssl/private/flocker-node.key
