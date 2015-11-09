@@ -10,3 +10,10 @@ ssl
 # terraform
 **/*.tfstate*
 **/.terraform
+bin
+local
+include
+lib
+lib64
+pip-selfcheck.json
+.ropeproject

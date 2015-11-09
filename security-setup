@@ -89,9 +89,7 @@ broad_opts = parser.add_argument_group(
     "specific options set from the sections below.")
 broad_opts.add_argument(
     '--enable',
-    type=ImplicitBool.parse_opt,
-    default=ImplicitBool.IMPLICIT_TRUE,
-    help='enable all security. This overrides everything.')
+    type=ImplicitBool.parse_opt, default=ImplicitBool.IMPLICIT_TRUE, help='enable all security. This overrides everything.')
 broad_opts.add_argument(
     '--consul',
     type=ImplicitBool.parse_opt,
@@ -571,6 +569,23 @@ class Nginx(Component):
                 print('set nginx admin password')
             else:
                 print('nginx admin password already set')
+
+
+class Supervisord(Component):
+    def check(self):
+        return [self.password]
+
+    def password(self):
+        "admin password"
+        with self.modify_security() as config:
+            if 'supervisord_admin_password' not in config or self.args.change_admin_password:
+                config['supervisord_admin_password'] = self.ask_pass(
+                    prompt='Admin Password: ',
+                    purpose='admin', )
+                print('set supervisord admin password')
+            else:
+                print('nginx supervisord password already set')
+
 
 
 class Consul(Component):

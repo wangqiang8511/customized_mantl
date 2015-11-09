@@ -23,5 +23,5 @@ files = {{ supervisord_conf_dir }}/*.conf
 
 [inet_http_server]
 port = 0.0.0.0:{{ supervisord_port }}
-username = {{ supervisord_user }}
-password = {{ supervisord_pass }}
+username = {{ supervisord_admin_user }}
+password = {{ supervisord_admin_password }}
