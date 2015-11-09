@@ -35,8 +35,11 @@ module "route53-dns" {
   worker_count = 1
   domain = "razerdata.com"
   hosted_zone_id = "Z1AJSP2MFMQX3K"
-  control_ips = "${module.aws-dc.control_ips}"
-  master_ips = "${module.aws-dc.master_ips}"
-  worker_ips = "${module.aws-dc.worker_ips}"
+  control_private_ips = "${module.aws-dc.control_private_ips}"
+  master_private_ips = "${module.aws-dc.master_private_ips}"
+  worker_private_ips = "${module.aws-dc.worker_private_ips}"
+  control_public_ips= "${module.aws-dc.control_public_ips}"
+  master_public_ips = "${module.aws-dc.master_public_ips}"
+  worker_public_ips = "${module.aws-dc.worker_public_ips}"
 }
 

@@ -361,14 +361,26 @@ resource "aws_key_pair" "deployer" {
   public_key = "${file(var.ssh_key)}"
 }
 
-output "control_ips" {
+output "control_private_ips" {
   value = "${join(\",\", aws_instance.mi-control-nodes.*.private_ip)}"
 }
 
-output "master_ips" {
+output "master_private_ips" {
   value = "${join(\",\", aws_instance.mi-master-nodes.*.private_ip)}"
 }
 
-output "worker_ips" {
+output "worker_private_ips" {
   value = "${join(\",\", aws_instance.mi-worker-nodes.*.private_ip)}"
+}
+
+output "control_public_ips" {
+  value = "${join(\",\", aws_instance.mi-control-nodes.*.public_ip)}"
+}
+
+output "master_public_ips" {
+  value = "${join(\",\", aws_instance.mi-master-nodes.*.public_ip)}"
+}
+
+output "worker_public_ips" {
+  value = "${join(\",\", aws_instance.mi-worker-nodes.*.public_ip)}"
 }
