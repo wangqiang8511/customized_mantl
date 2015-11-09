@@ -42,7 +42,7 @@ resource "aws_route53_record" "dns-public-control" {
   count = "${var.control_count}"
   zone_id = "${var.hosted_zone_id}"
   records = ["${element(split(\",\", var.control_public_ips), count.index)}"]
-  name = "${var.short_name}-control-${format("%02d", count.index+1)}.${var.domain}"
+  name = "${var.short_name}-control-pub-${format("%02d", count.index+1)}.${var.domain}"
   type = "A"
   ttl = 60
 }
@@ -50,7 +50,7 @@ resource "aws_route53_record" "dns-public-control" {
 resource "aws_route53_record" "dns-public-master" {
   count = "${var.master_count}"
   zone_id = "${var.hosted_zone_id}"
-  name = "${var.short_name}-master-${format("%03d", count.index+1)}.${var.domain}"
+  name = "${var.short_name}-master-pub-${format("%03d", count.index+1)}.${var.domain}"
   records = ["${element(split(\",\", var.master_public_ips), count.index)}"]
   type = "A"
   ttl = 60
@@ -59,7 +59,7 @@ resource "aws_route53_record" "dns-public-master" {
 resource "aws_route53_record" "dns-public-worker" {
   count = "${var.worker_count}"
   zone_id = "${var.hosted_zone_id}"
-  name = "${var.short_name}-worker-${format("%03d", count.index+1)}.${var.domain}"
+  name = "${var.short_name}-worker-pub-${format("%03d", count.index+1)}.${var.domain}"
   records = ["${element(split(\",\", var.worker_public_ips), count.index)}"]
   type = "A"
   ttl = 60
