@@ -8,7 +8,7 @@ docker run --name $CONTAINER_NAME \
     -p {{ etcd_client_port }}:{{ etcd_client_port }} \
     -p {{ etcd_peer_port }}:{{ etcd_peer_port }} \
     -v /data/etcd:/data/etcd:rw \
-    -v /etc/ssl:/etcd/ssl:ro \
+    -v /etc/ssl:/etc/ssl:ro \
     {{ etcd_image }}:{{ etcd_image_tag }} \
     -name {{ inventory_hostname }} \
     -initial-advertise-peer-urls http://{{ private_ipv4 }}:{{ etcd_peer_port }} \
