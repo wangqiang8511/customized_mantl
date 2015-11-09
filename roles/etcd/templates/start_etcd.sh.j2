@@ -5,8 +5,7 @@ CONTAINER_NAME=etcd
 docker rm -f $CONTAINER_NAME
 docker run --name $CONTAINER_NAME \
     -i \
-    -p {{ etcd_client_port }}:{{ etcd_client_port }} \
-    -p {{ etcd_peer_port }}:{{ etcd_peer_port }} \
+    --net=host \
     -v /data/etcd:/data/etcd:rw \
     -v /etc/ssl:/etc/ssl:ro \
     {{ etcd_image }}:{{ etcd_image_tag }} \
