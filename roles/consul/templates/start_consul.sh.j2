@@ -1,0 +1,26 @@
+#!/bin/bash
+
+CONTAINER_NAME=consul
+
+docker rm -f $CONTAINER_NAME
+{% if consul_mode == leader %}
+docker run --name $CONTAINER_NAME \
+    -i \
+    --net=host \
+    -v /data/consul:/data:rw \
+    {{ consul_image }}:{{ consul_image_tag }} \
+    -server \
+    -advertise {{ private_ipv4 }} \
+    -bootstrap-expect {{ consul_size }}
+{% endif %}
+
+{% if consul_mode == worker %}
+docker run --name $CONTAINER_NAME \
+    -i \
+    --net=host \
+    -v /data/consul:/data:rw \
+    {{ consul_image }}:{{ consul_image_tag }} \
+    -server \
+    -advertise {{ private_ipv4 }} \
+    -join {{ hostvars[consul_leader].private_ipv4 }}
+{% endif %}
