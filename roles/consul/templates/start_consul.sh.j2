@@ -3,7 +3,7 @@
 CONTAINER_NAME=consul
 
 docker rm -f $CONTAINER_NAME
-{% if consul_mode == leader %}
+{% if ansible_nodename == consul_leader %}
 docker run --name $CONTAINER_NAME \
     -i \
     --net=host \
@@ -14,7 +14,7 @@ docker run --name $CONTAINER_NAME \
     -bootstrap-expect {{ consul_size }}
 {% endif %}
 
-{% if consul_mode == worker %}
+{% if ansible_nodename != consul_leader %}
 docker run --name $CONTAINER_NAME \
     -i \
     --net=host \
