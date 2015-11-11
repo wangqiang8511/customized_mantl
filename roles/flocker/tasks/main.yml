@@ -77,6 +77,27 @@
     - docker
     - flocker
 
+- name: setup plugin cert in control node
+  sudo: yes
+  copy:
+    src: ssl/certs/flocker-plugin.crt
+    dest: /etc/flocker/plugin.crt
+  when: flocker_mode == "control"
+  tags:
+    - docker
+    - flocker
+
+- name: setup plugin key in control node
+  sudo: yes
+  copy:
+    src: ssl/private/flocker-plugin.key
+    dest: /etc/flocker/plugin.key
+    mode: 0600
+  when: flocker_mode == "control"
+  tags:
+    - docker
+    - flocker
+
 # Generate control service cert and key on node
 - name: check flocker control service cert
   sudo: yes
