@@ -9,10 +9,7 @@ discovery, specifically using the inbuilt DNS server.
 Variables
 ---------
 
-You can use these variables to customize your Consul installation. You'll
-typically want to set at least :data:`consul_dc`, :data:`consul_servers_group`,
-and :data:`consul_gossip_key`. These variables are roughly sorted from most
-commonly used to least.
+You can use these variables to customize your Consul installation.
 
 .. data:: consul_image
 
