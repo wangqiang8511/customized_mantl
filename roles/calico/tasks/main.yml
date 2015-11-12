@@ -103,8 +103,9 @@
 
 - name: create calico network
   sudo: yes
-  shell: "docker network create -d calico calico --subnet={{ calico_subnet }}" 
-  when: check_calico_network.stdout.find('calico') == -1
+  shell: "docker network create -d calico --opt nat-outgoing=true --opt ipip=true --subnet={{ calico_subnet }} calico" 
+  when: check_calico_network.stdout.find('calico') == -1 and
+        inventory_nodename == calico_network_initor
   tags:
     - docker
     - calico

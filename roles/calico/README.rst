@@ -33,3 +33,7 @@ information, refer to the :doc:`etcd` configuration.
 .. data:: calico_subnet
 
    Subnet for calico
+
+.. data:: calico_network_initor
+
+   The instance run docker network create command (required)
