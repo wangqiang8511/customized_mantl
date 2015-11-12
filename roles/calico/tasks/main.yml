@@ -34,11 +34,17 @@
   template:
     src: default_docker.j2
     dest: /etc/default/docker
-  notify:
-    - restart docker
+  register: docker_config_change
   tags:
     - docker
     - calico
+
+- name: restart docker when config changed
+  sudo: yes
+  service:
+    name: docker
+    state: restarted
+  when: docker_config_change.changed
 
 - name: enable docker
   sudo: yes
