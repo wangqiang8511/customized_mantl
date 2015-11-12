@@ -1,14 +1,6 @@
 ---
-- name: restart calico
+- name: restart docker
   sudo: yes
   service:
-    name: calico
+    name: docker
     state: restarted
-
-- name: restart mesos agent
-  sudo: yes
-  service:
-    name: mesos-slave
-    state: restarted
-  when: "mesos_agent_active.rc == 0 and mesos_agent_active.stdout == 'active'"
-  # use must_exist=no instead in ansible 2+
