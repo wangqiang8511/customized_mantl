@@ -1,8 +1,8 @@
 ---
 - name: change hostname
   sudo: yes
-  hostname: "name={{ inventory_hostname }}"
+  hostname: "name={{ inventory_hostname }}.{{ host_domain }}"
 
 - name: make hostname -i functional
   sudo: yes
-  lineinfile: "dest=/etc/hosts regexp='{{ inventory_hostname }}' line='{{ private_ipv4 }} {{ inventory_hostname }}'"
+  lineinfile: "dest=/etc/hosts regexp='{{ inventory_hostname }}.{{ host_domain }}' line='{{ private_ipv4 }} {{ inventory_hostname }}.{{ host_domain }}'"
