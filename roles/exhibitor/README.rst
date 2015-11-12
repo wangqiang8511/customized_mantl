@@ -32,6 +32,10 @@ You can use these variables to customize your exhibitor installation.
 
    Prefix for share config.
 
+.. data:: exhibitor_size
+
+   Size of exhibitor cluster.
+
 .. data:: cluster_name
 
    Name for your exhibitor cluster.

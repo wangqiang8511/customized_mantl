@@ -5,3 +5,4 @@ exhibitor_s3_region: us-east-1
 exhibitor_s3_bucket: bigdata-tmp
 exhibitor_config_prefix: zkconfig
 cluster_name: zk
+exhibitor_size: 3
