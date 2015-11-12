@@ -7,6 +7,14 @@
   tags:
     - exhibitor
 
+- name: ensure zookeeper data dir
+  sudo: yes
+  file:
+    path: /data/zookeeper
+    state: directory
+  tags:
+    - exhibitor
+
 - name: setup start_exhibitor script
   sudo: yes
   template:

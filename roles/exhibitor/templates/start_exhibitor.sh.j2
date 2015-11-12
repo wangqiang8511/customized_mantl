@@ -6,7 +6,7 @@ docker rm -f $CONTAINER_NAME
 docker run --name $CONTAINER_NAME \
     -i \
     --net=host \
-    -v /data:/data:rw \
+    -v /data/zookeeper:/data/zookeeper:rw \
     -e SIZE={{ exhibitor_size }} \
     {{ exhibitor_image }}:{{ exhibitor_image_tag }} \
     java -jar exhibitor-1.5.5.jar \
