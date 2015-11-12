@@ -25,3 +25,31 @@ you will need to update ``ETCD_AUTHORITY`` in the Calico role as well.
    Port for etcd server-to-server communication
 
    Default: ``2380``
+   
+.. data:: etcd_image
+
+   Docker image of etcd
+
+.. data:: etcd_image_tag
+
+   Docker image tag of etcd
+
+.. data:: etcd_browser_image
+
+   Docker image of etcd browser
+
+.. data:: etcd_browser_image_tag
+
+   Docker image tag of etcd browser
+
+.. data:: etcd_browser_port
+
+   Port used for etcd browser
+
+.. data:: etcd_client_port
+
+   Port used for etcd api
+
+.. data:: etcd_peer_port
+
+   Port used for etcd discovery
