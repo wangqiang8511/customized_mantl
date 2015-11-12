@@ -10,7 +10,15 @@
 - name: ensure zookeeper data dir
   sudo: yes
   file:
-    path: /data/zookeeper
+    path: /data/zookeeper/data
+    state: directory
+  tags:
+    - exhibitor
+
+- name: ensure zookeeper log dir
+  sudo: yes
+  file:
+    path: /data/zookeeper/log
     state: directory
   tags:
     - exhibitor
