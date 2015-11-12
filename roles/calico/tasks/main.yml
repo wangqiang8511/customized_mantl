@@ -35,6 +35,7 @@
   copy:
     src: calicoctl
     dest: /opt/bin/calicoctl
+    mode: 0755
   tags:
     - docker
     - calico
