@@ -29,3 +29,7 @@ information, refer to the :doc:`etcd` configuration.
 .. data:: docker_advertise_port
 
    Port used for docker cluster-advertise option
+
+.. data:: calico_subnet
+
+   Subnet for calico

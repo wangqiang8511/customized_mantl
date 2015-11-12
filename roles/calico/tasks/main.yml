@@ -75,18 +75,36 @@
     - docker
     - calico
 
+- name: check calico libnetwork existing
+  sudo: yes
+  shell: "docker ps | grep calico-node"
+  register: check_calico_libnetwork
+  tags:
+    - docker
+    - calico
+
 - name: enable calico plugin
   sudo: yes
   shell: "/opt/bin/calicoctl node --libnetwork" 
   environment:
     ETCD_AUTHORITY: "{{ private_ipv4 }}:{{ etcd_client_port }}"
+  when: check_calico_libnetwork.stdout.find('calico-node') == -1
+  tags:
+    - docker
+    - calico
+
+- name: check calico network existing
+  sudo: yes
+  shell: "docker network ls | grep calico"
+  register: check_calico_network
   tags:
     - docker
     - calico
 
 - name: create calico network
   sudo: yes
-  shell: "docker network create -d calico calico" 
+  shell: "docker network create -d calico calico --subnet={{ calico_subnet }}" 
+  when: check_calico_network.stdout.find('calico') == -1
   tags:
     - docker
     - calico

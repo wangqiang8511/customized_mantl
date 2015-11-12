@@ -3,3 +3,4 @@ etcd_image: quay.io/coreos/etcd
 etcd_image_tag: v2.2.1
 etcd_client_port: 2379
 docker_advertise_port: 2376
+calico_subnet: 192.168.0.0/16
