@@ -25,3 +25,7 @@ information, refer to the :doc:`etcd` configuration.
 .. data:: etcd_client_port
 
    Port used for etcd api
+
+.. data:: docker_advertise_port
+
+   Port used for docker cluster-advertise option

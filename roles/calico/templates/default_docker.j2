@@ -1,1 +1,1 @@
-DOCKER_OPTS=" --cluster-store=etcd://{{ private_ipv4}}:{{ etcd_client_port }} --cluster-advertise={{ private_ipv4 }} --graph=/data/docker -s aufs"
+DOCKER_OPTS=" --cluster-store=etcd://{{ private_ipv4}}:{{ etcd_client_port }} --cluster-advertise={{ private_ipv4 }}:{{ docker_advertise_port }} --graph=/data/docker -s aufs"
