@@ -28,6 +28,28 @@
   tags:
     - etcd_proxy
 
+# Setup docker cluster store
+- name: update docker default settings
+  sudo: yes
+  template:
+    src: default_docker.j2
+    dest: /etc/default/docker
+  notify:
+    - restart docker
+  tags:
+    - docker
+    - calico
+
+- name: enable docker
+  sudo: yes
+  service:
+    name: docker
+    enabled: yes
+    state: started
+  tags:
+    - docker
+    - calico
+
 # Enable calico libnetwork plugin
 - name: ensure customized bin
   sudo: yes
@@ -50,13 +72,15 @@
 - name: enable calico plugin
   sudo: yes
   shell: "/opt/bin/calicoctl node --libnetwork" 
+  environment:
+    ETCD_AUTHORITY: "{{ private_ipv4 }}:{{ etcd_client_port }}"
   tags:
     - docker
     - calico
 
 - name: create calico network
   sudo: yes
-  shell: "docker network create -d calico {{ cluster_name }}" 
+  shell: "docker network create -d calico calico" 
   tags:
     - docker
     - calico

@@ -1,4 +1,10 @@
 ---
+- name: restart docker
+  sudo: yes
+  service:
+    name: docker
+    state: restarted
+
 - name: restart etcd proxy
   sudo: yes
   supervisorctl: 
