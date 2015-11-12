@@ -1,0 +1,11 @@
+#!/bin/bash
+
+CONTAINER_NAME=etcd-browser
+
+docker rm -f $CONTAINER_NAME
+docker run --name $CONTAINER_NAME \
+    -i \
+    -p {{ etcd_browser_port }}:8000 \
+    -e ETCD_HOST={{ private_ipv4 }} \
+    -e ETCD_PORT=2379 \
+    {{ etcd_browser_image }}:{{ etcd_browser_image_tag }}

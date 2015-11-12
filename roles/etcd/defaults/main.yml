@@ -1,5 +1,7 @@
 ---
 etcd_image: quay.io/coreos/etcd
 etcd_image_tag: v2.2.1
+etcd_browser_image: buddho/etcd-browser
+etcd_browser_image_tag: latest
 etcd_client_port: 2379
 etcd_peer_port: 2380

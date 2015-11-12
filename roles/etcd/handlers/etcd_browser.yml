@@ -1,9 +1,7 @@
 ---
-- name: restart etcd
+- name: restart etcd browser
   sudo: yes
   supervisorctl: 
-    name: etcd
+    name: etcd_browser
     state: restarted
     supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
-
-- include: etcd_browser.yml

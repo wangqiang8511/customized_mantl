@@ -1,0 +1,28 @@
+---
+- name: setup start_etcd_browser script
+  sudo: yes
+  template:
+    src: start_etcd_browser.sh.j2
+    dest: /opt/bin/start_etcd_browser.sh
+    mode: 0755
+  notify: restart etcd browser
+  tags:
+    - etcd
+
+- name: setup etcd browser supervisord config
+  sudo: yes
+  template:
+    src: etcd_browser_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/etcd_browser.conf"
+  notify: restart etcd browser
+  tags:
+    - etcd
+
+- name: start etcd browser supervisord
+  sudo: yes
+  supervisorctl: 
+    name: etcd_browser
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  tags:
+    - etcd
