@@ -1,6 +1,7 @@
 ---
-- name: restart docker
+- name: restart etcd proxy
   sudo: yes
-  service:
-    name: docker
+  supervisorctl: 
+    name: etcd_proxy
     state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"

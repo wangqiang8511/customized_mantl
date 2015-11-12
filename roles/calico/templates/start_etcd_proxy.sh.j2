@@ -1,0 +1,16 @@
+#!/bin/bash
+
+CONTAINER_NAME=etcd_proxy
+
+docker rm -f $CONTAINER_NAME
+docker run --name $CONTAINER_NAME \
+    -i \
+    --net=host \
+    -v /data/etcd:/data/etcd:rw \
+    -v /etc/ssl:/etc/ssl:ro \
+    {{ etcd_image }}:{{ etcd_image_tag }} \
+    -proxy on \
+    -listen-client-urls http://{{ private_ipv4 }}:{{ etcd_client_port }} \
+    -discovery {{ etcd_discovery }} \
+    --cors=* \
+    --data-dir=/data/etcd/{{ inventory_hostname }}.etcd

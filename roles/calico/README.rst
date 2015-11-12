@@ -14,10 +14,14 @@ Variables
 You can use these variables to customize your Calico installation. For more
 information, refer to the :doc:`etcd` configuration.
 
-.. data:: etcd_cluster_store
-    
-   ETCD cluster used for calico. Informat etcd://<ip1>:2379,<ip2>:2379,<ip3>:2379
+.. data:: etcd_image
 
-.. data:: cluster_name
+   Docker image of etcd
 
-   cluster_name is used for network name
+.. data:: etcd_image_tag
+
+   Docker image tag of etcd
+
+.. data:: etcd_client_port
+
+   Port used for etcd api

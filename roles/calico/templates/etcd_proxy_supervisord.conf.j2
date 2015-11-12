@@ -1,0 +1,11 @@
+[program:etcd_proxy]
+command= /opt/bin/start_etcd_proxy.sh
+autostart=true
+autorestart=true
+redirect_stderr=True
+nodaemon = False
+debug = False
+stdout_logfile = /var/tmp/etcd_proxy.out
+stderr_logfile = /var/tmp/etcd_proxy.err
+loglevel = "info"
+stopasgroup=true
