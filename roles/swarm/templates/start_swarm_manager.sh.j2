@@ -7,7 +7,7 @@ docker run --name $CONTAINER_NAME \
     -i \
     --net=host \
     swarm \
-    manager \
+    manage \
     -H :{{ swarm_manager_port }} \
     --replication \
     --advertise={{ private_ipv4 }}:{{ swarm_manager_port }} \
