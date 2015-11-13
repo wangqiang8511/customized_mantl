@@ -53,6 +53,9 @@
     name: docker
     state: restarted
   when: docker_config_change.changed
+  tags:
+    - docker
+    - calico
 
 - name: enable docker
   sudo: yes
