@@ -1,0 +1,101 @@
+---
+# Setup etcd proxy
+- name: ensure customized bin
+  sudo: yes
+  file:
+    path: /opt/bin
+    state: directory
+  tags:
+    - swarm
+
+- name: setup start_etcd_proxy script
+  sudo: yes
+  template:
+    src: start_etcd_proxy.sh.j2
+    dest: /opt/bin/start_etcd_proxy.sh
+    mode: 0755
+  notify: restart etcd proxy
+  tags:
+    - etcd_proxy
+
+- name: setup etcd proxy supervisord config
+  sudo: yes
+  template:
+    src: etcd_proxy_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/etcd_proxy.conf"
+  notify: restart etcd proxy
+  tags:
+    - etcd_proxy
+
+- name: start etcd proxy supervisord
+  sudo: yes
+  supervisorctl: 
+    name: etcd_proxy
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  tags:
+    - etcd_proxy
+
+# Setup swarm agent
+- name: setup start_swarm_agent script
+  sudo: yes
+  template:
+    src: start_swarm_agent.sh.j2
+    dest: /opt/bin/start_swarm_agent.sh
+    mode: 0755
+  notify: restart swarm agent
+  when: swarm_mode == "agent"
+  tags:
+    - swarm_agent
+
+- name: setup swarm agent supervisord config
+  sudo: yes
+  template:
+    src: swarm_agent_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/swarm_agent.conf"
+  notify: restart swarm agent
+  when: swarm_mode == "agent"
+  tags:
+    - swarm_agent
+
+- name: start swarm agent supervisord
+  sudo: yes
+  supervisorctl: 
+    name: swarm_agent
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  when: swarm_mode == "agent"
+  tags:
+    - swarm_agent
+
+# Setup swarm manager
+- name: setup start_swarm_manager script
+  sudo: yes
+  template:
+    src: start_swarm_manager.sh.j2
+    dest: /opt/bin/start_swarm_manager.sh
+    mode: 0755
+  notify: restart swarm manager
+  when: swarm_mode == "manager"
+  tags:
+    - swarm_manager
+
+- name: setup swarm manager supervisord config
+  sudo: yes
+  template:
+    src: swarm_manager_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/swarm_manager.conf"
+  notify: restart swarm manager
+  when: swarm_mode == "manager"
+  tags:
+    - swarm_manager
+
+- name: start swarm manager supervisord
+  sudo: yes
+  supervisorctl: 
+    name: swarm_manager
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  when: swarm_mode == "manager"
+  tags:
+    - swarm_manager

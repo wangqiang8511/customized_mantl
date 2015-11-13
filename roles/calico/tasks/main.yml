@@ -1,4 +1,12 @@
 ---
+- name: ensure customized bin
+  sudo: yes
+  file:
+    path: /opt/bin
+    state: directory
+  tags:
+    - calico
+
 # Setup etcd proxy
 - name: setup start_etcd_proxy script
   sudo: yes
@@ -57,14 +65,6 @@
     - calico
 
 # Enable calico libnetwork plugin
-- name: ensure customized bin
-  sudo: yes
-  file:
-    path: /opt/bin
-    state: directory
-  tags:
-    - calico
-
 - name: copy calicoctl
   sudo: yes
   copy:

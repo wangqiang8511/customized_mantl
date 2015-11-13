@@ -1,0 +1,14 @@
+#!/bin/bash
+
+CONTAINER_NAME=swarm_manager
+
+docker rm -f $CONTAINER_NAME
+docker run --name $CONTAINER_NAME \
+    -i \
+    --net=host \
+    swarm \
+    manager \
+    -H :{{ swarm_manager_port }} \
+    --replication \
+    --advertise={{ private_ipv4 }}:{{ swarm_manager_port }} \
+    etcd://{{ private_ipv4 }}:{{ etcd_client_port }}/{{ cluster_name }}

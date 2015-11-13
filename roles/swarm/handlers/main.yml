@@ -1,0 +1,21 @@
+---
+- name: restart etcd proxy
+  sudo: yes
+  supervisorctl: 
+    name: etcd_proxy
+    state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+
+- name: restart swarm agent
+  sudo: yes
+  supervisorctl: 
+    name: swarm_agent
+    state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+
+- name: restart swarm manager
+  sudo: yes
+  supervisorctl: 
+    name: swarm_manager
+    state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"

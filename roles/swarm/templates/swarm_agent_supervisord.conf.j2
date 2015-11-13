@@ -1,0 +1,11 @@
+[program:swarm_agent]
+command= /opt/bin/start_swarm_agent.sh
+autostart=true
+autorestart=true
+redirect_stderr=True
+nodaemon = False
+debug = False
+stdout_logfile = /var/tmp/swarm_agent.out
+stderr_logfile = /var/tmp/swarm_agent.err
+loglevel = "info"
+stopasgroup=true
