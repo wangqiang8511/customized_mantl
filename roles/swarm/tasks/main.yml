@@ -6,19 +6,21 @@
     src: default_docker.j2
     dest: /etc/default/docker
   register: docker_config_change
+  when: swarm_mode == "agent"
   tags:
     - docker
-    - swarm
+    - swarm_agent
 
 - name: restart docker when config changed
   sudo: yes
   service:
     name: docker
     state: restarted
-  when: docker_config_change.changed
+  when: docker_config_change.changed and 
+        swarm_mode == "agent"
   tags:
     - docker
-    - swarm
+    - swarm_agent
 
 - name: enable docker
   sudo: yes
@@ -26,9 +28,10 @@
     name: docker
     enabled: yes
     state: started
+  when: swarm_mode == "agent"
   tags:
     - docker
-    - swarm
+    - swarm_agent
 
 # Setup etcd proxy
 - name: ensure customized bin
@@ -37,7 +40,7 @@
     path: /opt/bin
     state: directory
   tags:
-    - swarm
+    - swarm_agent
 
 - name: setup start_etcd_proxy script
   sudo: yes

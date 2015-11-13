@@ -6,3 +6,4 @@ etcd_image_tag: v2.2.1
 etcd_client_port: 2379
 swarm_agent_port: 2375
 swarm_manager_port: 2374
+docker_advertise_port: 2376
