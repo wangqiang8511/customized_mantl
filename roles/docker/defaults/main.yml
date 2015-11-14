@@ -1,0 +1,4 @@
+---
+etcd_client_port: 2379
+docker_tcp_port: 2375
+docker_advertise_port: 2376

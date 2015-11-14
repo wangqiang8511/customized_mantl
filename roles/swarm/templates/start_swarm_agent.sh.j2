@@ -8,5 +8,5 @@ docker run --name $CONTAINER_NAME \
     --net=host \
     swarm \
     join \
-    --advertise={{ private_ipv4 }}:{{ swarm_agent_port }} \
+    --advertise={{ private_ipv4 }}:{{ docker_tcp_port }} \
     etcd://{{ private_ipv4 }}:{{ etcd_client_port }}/{{ cluster_name }}

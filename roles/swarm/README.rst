@@ -27,9 +27,9 @@ You can use these variables to customize your swarm installation.
 
    Port used for etcd api
 
-.. data:: swarm_agent_port
+.. data:: docker_tcp_port
 
-   Port used for swarm agent default 2375
+   Port used for docker tcp default 2375
 
 .. data:: swarm_manager_port
 

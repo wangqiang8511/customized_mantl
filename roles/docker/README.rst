@@ -13,3 +13,15 @@ with :doc:`marathon`'s scheduling.
 See the `Marathon documentation
 <https://mesosphere.github.io/marathon/docs/native-docker-private-registry.html>`_
 for more information.
+
+.. data:: etcd_client_port
+
+   Port used for etcd api, default 2379
+
+.. data:: docker_tcp_port
+
+   Port used for docker tcp default 2375
+
+.. data:: docker_advertise_port
+
+   Port used for docker advertise opt default 2376
