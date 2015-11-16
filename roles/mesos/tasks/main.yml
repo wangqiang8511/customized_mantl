@@ -24,7 +24,7 @@
 - name: config mesos master supervisord
   sudo: yes
   template: src=mesos_master_supervisord.conf.j2 dest=/etc/supervisord/mesos_master.conf
-  notify: start mesos master
+  notify: restart mesos master
   when: mesos_mode == "master"
   tags:
     - mesos
@@ -32,7 +32,7 @@
 - name: config mesos slave supervisord
   sudo: yes
   template: src=mesos_slave_supervisord.conf.j2 dest=/etc/supervisord/mesos_slave.conf
-  notify: start mesos slave
+  notify: restart mesos slave
   when: mesos_mode == "slave"
   tags:
     - mesos
