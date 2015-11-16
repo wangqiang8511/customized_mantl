@@ -1,0 +1,22 @@
+---
+# AWS config
+aws_region: us-east-1
+aws_zone: us-east-1d
+control_instance_type: t2.medium
+master_instance_type: t2.medium
+worker_instance_type: t2.medium
+aws_ami: ami-d05e75b8
+aws_instance_role: ""
+control_count: 3
+master_count: 3
+worker_count: 1
+ssh_key: ""
+
+# Route53 settings
+route53_zone_id: ""
+domain: ""
+
+# Deployment 
+cluster_name: mi
+exhibitor_s3_bucket: ""
+exhibitor_config_prefix: ""

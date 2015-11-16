@@ -1,0 +1,36 @@
+provider "aws" {
+  region = "{{ aws_region }}"
+}
+
+module "aws-dc" {
+  source = "./terraform/aws"
+  availability_zone = "{{ aws_zone }}"
+  control_type = "{{ control_instance_type }}"
+  master_type = "{{ master_instance_type }}"
+  worker_type = "{{ worker_instance_type }}"
+  ssh_username = "ubuntu"
+  ssh_key = "ssl/{{ ssh_keyname }}"
+  source_ami = "{{ aws_ami }}"
+  control_count = {{ control_count }}
+  master_count = {{ master_count }}
+  worker_count = {{ worker_count }}
+  control_iam_profile = "{{ aws_instance_role }}"
+  master_iam_profile = "{{ aws_instance_role }}"
+  worker_iam_profile = "{{ aws_instance_role }}"
+}
+
+module "route53-dns" {
+  source = "./terraform/route53/dns"
+  short_name = "{{ cluster_name }}"
+  control_count = {{ control_count }}
+  master_count = {{ master_count }}
+  worker_count = {{ worker_count }}
+  domain = "{{ domain }}"
+  hosted_zone_id = "{{ route53_zone_id }}"
+  control_private_ips = "${module.aws-dc.control_private_ips}"
+  master_private_ips = "${module.aws-dc.master_private_ips}"
+  worker_private_ips = "${module.aws-dc.worker_private_ips}"
+  control_public_ips= "${module.aws-dc.control_public_ips}"
+  master_public_ips = "${module.aws-dc.master_public_ips}"
+  worker_public_ips = "${module.aws-dc.worker_public_ips}"
+}

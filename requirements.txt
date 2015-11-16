@@ -3,4 +3,7 @@ ansible>=1.9.1,<2.0
 pytest==2.7.1
 PyYAML==3.10
 Sphinx==1.2.3
+click
+jinja2
+requests
 git+git://github.com/ClusterHQ/flocker@1.5.0
