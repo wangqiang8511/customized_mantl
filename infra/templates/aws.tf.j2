@@ -9,7 +9,7 @@ module "aws-dc" {
   master_type = "{{ master_instance_type }}"
   worker_type = "{{ worker_instance_type }}"
   ssh_username = "ubuntu"
-  ssh_key = "ssl/{{ ssh_keyname }}"
+  ssh_key = "{{ ssh_key }}"
   source_ami = "{{ aws_ami }}"
   control_count = {{ control_count }}
   master_count = {{ master_count }}

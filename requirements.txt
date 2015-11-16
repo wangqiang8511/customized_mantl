@@ -5,5 +5,5 @@ PyYAML==3.10
 Sphinx==1.2.3
 click
 jinja2
-requests
+requests==2.7.0
 git+git://github.com/ClusterHQ/flocker@1.5.0
