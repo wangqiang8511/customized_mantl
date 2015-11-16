@@ -20,6 +20,7 @@
 
 # Setup correct java version
 - name: correct java version selected
+  sudo: yes
   alternatives: 
     name: java 
     path: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java"
