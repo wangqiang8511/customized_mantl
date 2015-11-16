@@ -1,0 +1,16 @@
+[program:mesos_master]
+command= /usr/sbin/mesos-master
+        --ip={{ private_ipv4 }}
+        --work_dir=/data/mesos
+        --cluster={{ cluster_name }}
+        --zk={{ zk_hosts }}/{{ cluster_name }}
+        --quorum=2
+autostart=true
+autorestart=true
+redirect_stderr=True
+nodaemon = False
+debug = False
+stdout_logfile = /var/tmp/mesos_master.out
+stderr_logfile = /var/tmp/mesos_master.err
+loglevel = "info"
+stopasgroup=true

@@ -1,0 +1,15 @@
+[program:mesos_slave]
+command=/usr/sbin/mesos-slave
+        --master={{ zk_hosts }}/{{ cluster_name }}
+        --ip={{ private_ipv4 }}
+        --work_dir=/data/mesos
+        --containerizers=docker,mesos
+autostart=true
+autorestart=true
+redirect_stderr=True
+nodaemon = False
+debug = False
+stdout_logfile = /var/tmp/mesos_slave.out
+stderr_logfile = /var/tmp/mesos_slave.err
+loglevel = "info"
+stopasgroup=true

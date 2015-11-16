@@ -1,34 +1,14 @@
 ---
-- name: restart mesos leader
+- name: restart mesos master
   sudo: yes
-  command: systemctl restart mesos-master
-
-- name: remove mesos follower metadata
-  sudo: yes
-  command: "{{ item }}"
-  with_items:
-    - systemctl stop mesos-slave
-    - rm -rf /tmp/mesos/meta/slaves/latest
-    - systemctl start mesos-slave
-
-- name: restart mesos follower
-  sudo: yes
-  command: systemctl restart mesos-slave
-
-- name: reload consul
-  sudo: yes
-  command: "{{ consul_bin }} reload"
-
-- name: restart nginx-mesos-leader
-  sudo: yes
-  command: systemctl restart nginx-mesos-leader
-
-- name: reload nginx-mesos-leader
-  sudo: yes
-  command: systemctl daemon-reload
-
-- name: restart collectd
-  sudo: yes
-  service:
-    name: collectd
+  supervisorctl: 
+    name: mesos_master
     state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+
+- name: restart mesos slave
+  sudo: yes
+  supervisorctl: 
+    name: mesos_slave
+    state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"

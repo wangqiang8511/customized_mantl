@@ -1,86 +1,58 @@
 ---
-- name: add mesosphere repository
+- name: check mesos installation
   sudo: yes
-  yum:
-    name:  http://repos.mesosphere.io/el/7/noarch/RPMS/mesosphere-el-repo-7-1.noarch.rpm
+  stat: path="/usr/lib/libmesos.so"
+  register: check_mesos_path
+  tags:
+    - mesos
+
+- name: Download mesos
+  sudo: yes
+  get_url: url="https://s3.amazonaws.com/bigdata-thirdparty/mesos_cluster/mesos_{{ mesos_version }}/mesos-{{ mesos_version }}.deb" dest="/tmp/mesos-{{ mesos_version }}.deb" mode=0644
+  when: check_mesos_path.stat.exists == False
+  register: mesos_archive 
+  tags:
+    - mesos
+
+- name: mesos install
+  sudo: yes
+  shell: "dpkg --unpack /tmp/mesos-{{ mesos_version }}.deb && apt-get install -f -y"
+  when: mesos_archive|changed
+  tags:
+    - mesos
+
+- name: config mesos master supervisord
+  sudo: yes
+  template: src=mesos_master_supervisord.conf.j2 dest=/etc/supervisord/mesos_master.conf
+  notify: start mesos master supervisord
+  when: mesos_mode == "master"
+  tags:
+    - mesos
+
+- name: config mesos slave supervisord
+  sudo: yes
+  template: src=mesos_slave_supervisord.conf.j2 dest=/etc/supervisord/mesos_slave.conf
+  notify: start mesos slave supervisord
+  when: mesos_mode == "slave"
+  tags:
+    - mesos
+
+- name: start mesos master supervisord
+  sudo: yes
+  supervisorctl: 
+    name: mesos_master 
     state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  when: mesos_mode == "master"
   tags:
     - mesos
-    - bootstrap
 
-- name: install mesos package
+- name: start mesos slave supervisord
   sudo: yes
-  yum:
-    name: "{{ mesos_package }}"
+  supervisorctl: 
+    name: mesos_slave 
     state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  when: mesos_mode == "slave"
   tags:
     - mesos
-    - bootstrap
-
-- name: install cyrus-sasl-md5
-  sudo: yes
-  yum:
-    name: cyrus-sasl-md5
-    state: present
-  tags:
-    - mesos
-    - bootstrap
-
-- name: configure /etc/mesos/zk
-  sudo: yes
-  template:
-    src: zk.j2
-    dest: /etc/mesos/zk
-  tags:
-    - mesos
-
-- name: configure /etc/mesos/hostname
-  sudo: yes
-  template:
-    src: hostname.j2
-    dest: /etc/mesos/hostname
-    mode: 0600
-  tags:
-    - mesos
-
-- name: disable mesos leader
-  sudo: yes
-  service:
-    name: mesos-master
-    enabled: no
-  when: mesos_mode == "follower"
-  tags:
-    - mesos
-
-- name: configure mesos-master unit file
-  sudo: yes
-  replace:
-    dest: /usr/lib/systemd/system/mesos-master.service
-    regexp: "=network.target"
-    replace: '=zookeeper.service'
-  when: mesos_mode == "leader"
-  tags:
-    - mesos
-
-- name: disable mesos follower
-  sudo: yes
-  service:
-    name: mesos-slave
-    enabled: no
-  when: mesos_mode == "leader"
-  tags:
-    - mesos
-
-- name: ensure consul.d is present
-  sudo: yes
-  file:
-    path: "{{ consul_dir }}"
-    state: directory
-  tags:
-    - mesos
-
-- include: leader.yml
-  when: mesos_mode == "leader" or mesos_mode == "mixed"
-
-- include: follower.yml
-  when: mesos_mode == "follower" or mesos_mode == "mixed"
