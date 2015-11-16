@@ -1,0 +1,23 @@
+---
+- name: install haproxy pkgs
+  sudo: yes
+  apt: "pkg=haproxy state=present update_cache=yes cache_valid_time=3600"
+  tags:
+    - haproxy
+    - bootstrap
+
+- name: install haproxy pkgs
+  sudo: yes
+  shell: "/opt/marathon-{{ marathon_version }}/bin/haproxy-marathon-bridge install_haproxy_system localhost:8080"
+  notify: restart haproxy
+  tags:
+    - haproxy
+
+- name: enable haproxy
+  sudo: yes
+  service:
+    name: haproxy
+    enabled: yes
+    state: started
+  tags:
+    - haproxy

@@ -13,75 +13,22 @@ Keep Marathon servers close to Mesos leaders for best performance; they talk
 back and forth quite a lot to keep the services in the cluster in a good state.
 Placing them on the same machines would work.
 
-Marathon listens on port 8080. To connect to Marathon securely, set
-:data:`marathon_keystore_path` and :data:`marathon_keystore_password`, then
-connect via HTTPS on port 8443.
-
-The Marathon role also sets up `mesos-consul
-<https://github.com/CiscoCloud/mesos-consul>`_ and `marathon-consul
-<https://github.com/CiscoCloud/marathon-consul>`_ for service discovery.
-
 Variables
 ---------
+.. data:: marathon_version
 
-.. data:: marathon_http_credentials
+   Version of marathon.
 
-   HTTP Basic authentication credentials, in the form "user:password".
+   default: ``0.11.1``
 
-.. data:: marathon_keystore_path
+.. data:: zk_hosts
 
-   Path on the local machine that contains a Java keystore. Marathon has docs on
-   `generating this file
-   <https://mesosphere.github.io/marathon/docs/ssl-basic-access-authentication.html>`_.
-   Please note that if this option is set, :data:`marathon_keystore_password` is
-   *required*.
+   Zookeeper hosts, in format of "zk://host1:port1,host2:port2,host3:port3"
 
-.. data:: marathon_keystore_password
+   default: ``zk://localhost:2181``
 
-   Password for the keystore specified in :data:`marathon_keystore_path`.
+.. data:: cluster_name
 
-.. data:: marathon_principal
+   Name of the cluster. Used in zookeeper prefix
 
-   Principal to use for Mesos framework authentication.
-
-   .. note:: If you plan to use framework authentication, be sure to add the
-             principal and secret to :data:`mesos_credentials` and set
-             :data:`mesos_authenticate_frameworks` to ``yes``.
-
-   default: ``marathon``
-
-.. data:: marathon_secret
-
-   Secret to use for Mesos framework authentication. Authentication will only be
-   enabled if this value is set to a non-blank value. See also the note in
-   :data:`marathon_principal`.
-
-   default: ``""``
-
-.. data:: mesos_consul_image
-
-   Image for the `mesos-consul <https://github.com/CiscoCloud/mesos-consul>`_
-   bridge.
-
-   Default: ``drifting/mesos-consul``
-
-.. data:: mesos_consul_image_tag
-
-   Tag for the `mesos-consul <https://github.com/CiscoCloud/mesos-consul>`_
-   bridge
-
-   Default: ``latest``
-
-.. data:: marathon_consul_image
-
-   Image for the `marathon-consul
-   <https://github.com/CiscoCloud/marathon-consul>`_ bridge.
-
-   Default: ``brianhicks/marathon-consul``
-
-.. data:: marathon_consul_image_tag
-
-   Tag for the `marathon-consul
-   <https://github.com/CiscoCloud/marathon-consul>`_ bridge
-
-   Default: ``latest``
+   default: ``mi``

@@ -1,0 +1,44 @@
+---
+- name: check marathon folder
+  sudo: yes
+  stat: path="/opt/marathon-{{ marathon_version }}"
+  register: check_marathon_path
+  tags:
+    - marathon
+    - bootstrap
+
+- name: Download marathon
+  sudo: yes
+  get_url: url="https://s3.amazonaws.com/bigdata-thirdparty/mesos_cluster/marathon_{{ marathon_version }}/marathon-{{ marathon_version }}.tgz" dest="/tmp/marathon-{{ marathon_version }}.tgz" mode=0644
+  when: check_marathon_path.stat.exists == False
+  register: marathon_archive 
+  tags:
+    - marathon
+    - bootstrap
+
+- name: Unarchive marathon source
+  sudo: yes
+  unarchive:
+    src="/tmp/marathon-{{ marathon_version }}.tgz"
+    dest="/opt/"
+    copy=no
+  when: marathon_archive|changed
+  tags:
+    - marathon
+    - bootstrap
+
+- name: config marathon supervisord
+  sudo: yes
+  template: src=marathon_supervisord.conf.j2 dest=/etc/supervisord/marathon.conf
+  notify: restart marathon
+  tags:
+    - marathon
+
+- name: start marathon supervisord
+  sudo: yes
+  supervisorctl: 
+    name: marathon
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  tags:
+    - marathon

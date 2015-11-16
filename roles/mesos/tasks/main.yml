@@ -5,6 +5,7 @@
   register: check_mesos_path
   tags:
     - mesos
+    - bootstrap
 
 - name: Download mesos
   sudo: yes
@@ -13,6 +14,7 @@
   register: mesos_archive 
   tags:
     - mesos
+    - bootstrap
 
 - name: mesos install
   sudo: yes
@@ -20,6 +22,7 @@
   when: mesos_archive|changed
   tags:
     - mesos
+    - bootstrap
 
 - name: config mesos master supervisord
   sudo: yes

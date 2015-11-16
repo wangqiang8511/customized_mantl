@@ -29,3 +29,9 @@ You can use these variables to customize your Mesos installation.
    Zookeeper hosts, in format of "zk://host1:port1,host2:port2,host3:port3"
 
    default: ``zk://localhost:2181``
+
+.. data:: cluster_name
+
+   Name of the cluster. Used in zookeeper prefix
+
+   default: ``mi``

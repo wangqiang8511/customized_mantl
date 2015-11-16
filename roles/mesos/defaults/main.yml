@@ -4,3 +4,4 @@ mesos_version: 0.25.0
 supervisord_conf_dir: /etc/supervisord
 supervisord_exec_dir: /usr/local/bin
 zk_hosts: zk://localhost:2181
+cluster_name: mi

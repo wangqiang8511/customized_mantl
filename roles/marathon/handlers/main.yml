@@ -1,33 +1,11 @@
 ---
-- name: reload marathon
+- name: restart haproxy
   sudo: yes
-  command: systemctl daemon-reload
-  notify:
-    - wait for marathon to listen
+  service: name=haproxy state=restarted
 
 - name: restart marathon
   sudo: yes
-  command: systemctl restart marathon
-  notify:
-    - wait for marathon to listen
-
-- name: wait for marathon to listen
-  command: /usr/local/bin/marathon-wait-for-listen.sh
-
-- name: reload consul
-  sudo: yes
-  command: "{{ consul_bin }} reload"
-
-- name: restart nginx-marathon
-  sudo: yes
-  command: systemctl restart nginx-marathon
-
-- name: reload nginx-marathon
-  sudo: yes
-  command: systemctl daemon-reload
-
-- name: restart collectd
-  sudo: yes
-  service:
-    name: collectd
+  supervisorctl: 
+    name: marathon
     state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
