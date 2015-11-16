@@ -1,0 +1,20 @@
+aws:
+ - aws_region
+ - aws_zone
+ - control_instance_type
+ - master_instance_type
+ - worker_instance_type
+ - aws_ami
+ - aws_instance_role
+ - control_count
+ - master_count
+ - worker_count
+ - ssh_key
+ - route53_zone_id
+ - domain
+ - cluster_name
+
+swarm:
+ - exhibitor_s3_bucket
+ - exhibitor_config_prefix
+ - cluster_type

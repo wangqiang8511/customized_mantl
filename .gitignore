@@ -17,3 +17,7 @@ lib
 lib64
 pip-selfcheck.json
 .ropeproject
+
+aws.tf
+cluster.yml
+infra_ansible.yml

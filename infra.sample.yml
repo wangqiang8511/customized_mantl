@@ -20,3 +20,4 @@ domain: ""
 cluster_name: mi
 exhibitor_s3_bucket: ""
 exhibitor_config_prefix: ""
+cluster_type: swarm
