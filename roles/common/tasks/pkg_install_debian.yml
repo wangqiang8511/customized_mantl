@@ -17,3 +17,9 @@
   with_items: system_pkgs_debian
   tags:
     - bootstrap
+
+# Setup correct java version
+- name: correct java version selected
+  alternatives: 
+    name: java 
+    path: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java"
