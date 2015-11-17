@@ -81,7 +81,7 @@ def generate_ectd_discovery(config):
 def generate_zk_hosts(config):
     control_count = int(config["control_count"])
     zk_hosts = []
-    for i in range(control_count + 1):
+    for i in range(1, control_count + 1):
         zk_hosts.append("%s-control-%s.%s:2181" %
                         (config["cluster_name"],
                          str(i).zfill(2),
