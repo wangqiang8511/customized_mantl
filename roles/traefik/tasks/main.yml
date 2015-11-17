@@ -7,11 +7,11 @@
   tags:
     - traefik
 
-- name: setup traefik script
+- name: setup traefik binary 
   sudo: yes
-  template:
-    src: start_traefik.sh.j2
-    dest: /opt/bin/start_traefik.sh
+  copyt:
+    src: traefik
+    dest: /opt/bin/traefik
     mode: 0755
   notify: restart traefik
   tags:
