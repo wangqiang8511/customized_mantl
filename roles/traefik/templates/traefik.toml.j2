@@ -1,0 +1,122 @@
+################################################################
+# Global configuration
+################################################################
+
+# Reverse proxy port
+#
+# Optional
+# Default: ":80"
+#
+port = ":{{ traefik_port }}"
+
+# Timeout in seconds.
+# Duration to give active requests a chance to finish during hot-reloads
+#
+# Optional
+# Default: 10
+#
+# graceTimeOut = 10
+
+# Traefik logs file
+# If not defined, logs to stdout
+#
+# Optional
+#
+# traefikLogsFile = "log/traefik.log"
+
+# Access logs file
+#
+# Optional
+#
+# accessLogsFile = "log/access.log"
+
+# Log level
+#
+# Optional
+# Default: "ERROR"
+#
+# logLevel = "ERROR"
+
+# SSL certificate and key used
+#
+# Optional
+#
+# CertFile = "traefik.crt"
+# KeyFile = "traefik.key"
+
+# Backends throttle duration: minimum duration between 2 events from providers
+# before applying a new configuration. It avoids unnecessary reloads if multiples events
+# are sent in a short amount of time.
+#
+# Optional
+# Default: "2s"
+#
+# ProvidersThrottleDuration = "5s"
+
+
+################################################################
+# Web configuration backend
+################################################################
+
+# Enable web configuration backend
+#
+# Optional
+#
+[web]
+
+# Web administration port
+#
+# Required
+#
+address = ":{{ traefik_api_port }}"
+
+# SSL certificate and key used
+#
+# Optional
+#
+# CertFile = "traefik.crt"
+# KeyFile = "traefik.key"
+
+
+################################################################
+# Mesos/Marathon configuration backend
+################################################################
+
+# Enable Marathon configuration backend
+#
+# Optional
+#
+[marathon]
+
+# Marathon server endpoint.
+# You can also specify multiple endpoint for Marathon:
+# endpoint := "http://10.241.1.71:8080,10.241.1.72:8080,10.241.1.73:8080"
+#
+# Required
+#
+endpoint = "http://{{ marathon_hosts }}"
+
+# Network interface used to call Marathon web services. Needed in case of multiple network interfaces.
+# Optional
+# Default: "eth0"
+#
+# networkInterface = "eth0"
+
+# Enable watch Marathon changes
+#
+# Optional
+#
+# watch = true
+
+# Default domain used.
+# Can be overridden by setting the "traefik.domain" label on an application.
+#
+# Required
+#
+domain = "marathon.{{ cluster_name }}"
+
+# Override default configuration template. For advanced users :)
+#
+# Optional
+#
+# filename = "marathon.tmpl"

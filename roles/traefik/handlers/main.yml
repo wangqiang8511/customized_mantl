@@ -1,0 +1,7 @@
+---
+- name: restart traefik
+  sudo: yes
+  supervisorctl: 
+    name: traefik
+    state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"

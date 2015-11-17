@@ -1,0 +1,9 @@
+---
+supervisord_conf_dir: /etc/supervisord
+supervisord_exec_dir: /usr/local/bin
+traefik_image: evauge/traefik
+traefik_image_tag: v1.0.alpha.285
+traefik_api_port: 3001
+traefik_port: 80
+marathon_hosts: "localhost:8080"
+cluster_name: mi

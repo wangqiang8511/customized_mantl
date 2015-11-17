@@ -1,0 +1,53 @@
+---
+- name: ensure customized bin
+  sudo: yes
+  file:
+    path: /opt/bin
+    state: directory
+  tags:
+    - traefik
+
+- name: setup traefik script
+  sudo: yes
+  template:
+    src: start_traefik.sh.j2
+    dest: /opt/bin/traefik.sh
+    mode: 0755
+  notify: restart traefik
+  tags:
+    - traefik
+
+- name: ensure traefik
+  sudo: yes
+  file:
+    path: /etc/traefik
+    state: directory
+  tags:
+    - traefik
+
+- name: setup traefik config
+  sudo: yes
+  template:
+    src: traefik.toml.j2
+    dest: "/etc/traefik/traefik.toml"
+  notify: restart traefik
+  tags:
+    - traefik
+
+- name: setup traefik supervisord config
+  sudo: yes
+  template:
+    src: traefik_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/traefik.conf"
+  notify: restart traefik
+  tags:
+    - traefik
+
+- name: start traefik supervisord
+  sudo: yes
+  supervisorctl: 
+    name: traefik
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  tags:
+    - traefik
