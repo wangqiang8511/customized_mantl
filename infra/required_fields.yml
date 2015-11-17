@@ -18,3 +18,8 @@ swarm:
  - exhibitor_s3_bucket
  - exhibitor_config_prefix
  - cluster_type
+
+mesos:
+ - exhibitor_s3_bucket
+ - exhibitor_config_prefix
+ - cluster_type

@@ -37,7 +37,7 @@ def load_infra_config(filename):
 
 
 def check_cluster_type(config):
-    supported = ["swarm"]
+    supported = ["swarm", "mesos"]
     if not config["cluster_type"] in supported:
         return False, "Cluster type is not supported"
     return True, "OK"
@@ -78,6 +78,18 @@ def generate_ectd_discovery(config):
     return config
 
 
+def generate_zk_hosts(config):
+    control_count = int(config["control_count"])
+    zk_hosts = []
+    for i in range(control_count + 1):
+        zk_hosts.append("%s-control-%s.%s:2181" %
+                        (config["cluster_name"],
+                         str(i).zfill(2),
+                         config["domain"]))
+    config["zk_hosts"] = "zk://" + ",".join(zk_hosts)
+    return config
+
+
 def render_template(config, template_name, outfile):
     env = Environment(loader=FileSystemLoader(tmpl_dir))
     template = env.get_template(template_name)
@@ -97,6 +109,7 @@ def infra_setup(config_file):
     out_aws_tf = os.path.join(out_dir, "aws.tf")
     render_template(config, "aws.tf.j2", out_aws_tf)
     config = generate_ectd_discovery(config)
+    config = generate_zk_hosts(config)
     out_cluster_yml = os.path.join(out_dir, "cluster.yml")
     render_template(config, "cluster.yml.j2", out_cluster_yml)
     out_infra_ansible_yml = os.path.join(out_dir, "infra_ansible.yml")
