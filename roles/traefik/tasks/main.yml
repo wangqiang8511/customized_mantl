@@ -11,7 +11,7 @@
   sudo: yes
   template:
     src: start_traefik.sh.j2
-    dest: /opt/bin/traefik.sh
+    dest: /opt/bin/start_traefik.sh
     mode: 0755
   notify: restart traefik
   tags:
