@@ -9,7 +9,7 @@
 
 - name: setup traefik binary 
   sudo: yes
-  copyt:
+  copy:
     src: traefik
     dest: /opt/bin/traefik
     mode: 0755
