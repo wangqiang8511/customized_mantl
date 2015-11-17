@@ -35,7 +35,7 @@ port = ":{{ traefik_port }}"
 # Optional
 # Default: "ERROR"
 #
-# logLevel = "ERROR"
+logLevel = "{{ traefik_log_level }}"
 
 # SSL certificate and key used
 #
@@ -113,7 +113,7 @@ endpoint = "http://{{ marathon_hosts }}"
 #
 # Required
 #
-domain = "marathon.{{ cluster_name }}"
+domain = "marathon.{{ cluster_name }}-master.{{ domain }}"
 
 # Override default configuration template. For advanced users :)
 #

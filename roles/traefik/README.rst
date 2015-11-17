@@ -29,6 +29,12 @@ Variables
    Port for traefik
 
    Default: ``80``
+
+.. data:: traefik_log_level
+
+   Log Level for traefik
+
+   Default: ``ERROR``
    
 .. data:: marathon_hosts
 
@@ -41,3 +47,9 @@ Variables
    Name of cluster, used for setup traefik domain
 
    Default: ``mi``
+
+.. data:: domain
+
+   Domain of cluster, used for setup traefik domain
+
+   Default: ``localhost``
