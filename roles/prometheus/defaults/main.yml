@@ -1,0 +1,6 @@
+---
+supervisord_conf_dir: /etc/supervisord
+supervisord_exec_dir: /usr/local/bin
+prometheus_image: prom/prometheus
+prometheus_image_tag: 0.16.1
+cluster_name: mi

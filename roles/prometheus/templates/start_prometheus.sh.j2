@@ -1,0 +1,11 @@
+#!/bin/bash
+
+CONTAINER_NAME=prometheus
+
+docker rm -f $CONTAINER_NAME
+docker run --name $CONTAINER_NAME \
+    -i \
+    --net=host \
+    -v /etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro \
+    -v /data/prometheus:/prometheus:rw \
+    {{ prometheus_image }}:{{ prometheus_image_tag }}

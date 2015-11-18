@@ -1,0 +1,62 @@
+---
+# Setup prometheus
+- name: ensure customized bin
+  sudo: yes
+  file:
+    path: /opt/bin
+    state: directory
+  tags:
+    - prometheus
+
+- name: setup start_prometheus script
+  sudo: yes
+  template:
+    src: start_prometheus.sh.j2
+    dest: /opt/bin/start_prometheus.sh
+    mode: 0755
+  notify: restart prometheus
+  tags:
+    - prometheus
+
+- name: ensure prometheus config dir
+  sudo: yes
+  file:
+    path: /etc/prometheus
+    state: directory
+  tags:
+    - prometheus
+
+- name: ensure prometheus data dir
+  sudo: yes
+  file:
+    path: /data/prometheus
+    state: directory
+  tags:
+    - prometheus
+
+- name: setup prometheus config
+  sudo: yes
+  template:
+    src: prometheus.yml.j2
+    dest: "/etc/prometheus/prometheus.yml"
+  notify: restart prometheus
+  tags:
+    - prometheus 
+
+- name: setup prometheus supervisord config
+  sudo: yes
+  template:
+    src: prometheus_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/prometheus.conf"
+  notify: restart prometheus
+  tags:
+    - prometheus 
+
+- name: start prometheus supervisord
+  sudo: yes
+  supervisorctl: 
+    name: prometheus 
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  tags:
+    - prometheus

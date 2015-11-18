@@ -1,0 +1,7 @@
+---
+- name: restart prometheus
+  sudo: yes
+  supervisorctl: 
+    name: prometheus
+    state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
