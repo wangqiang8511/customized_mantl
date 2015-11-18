@@ -5,7 +5,7 @@ supervisord_exec_dir: /usr/local/bin
 prometheus_image: prom/prometheus
 prometheus_image_tag: 0.16.1
 cluster_name: mi
-domain: localhost
+host_domain: localhost
 
 # Promdash
 promdash_image: prom/promdash

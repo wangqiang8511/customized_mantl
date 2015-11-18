@@ -40,5 +40,5 @@ scrape_configs:
     target_groups:
       - targets: 
         {% for i in range(etcd_size) -%}
-          - "{{ cluster_name }}-control-{{ "%02g"|format(i + 1) }}.{{ domain }}:{{ etcd_client_port }}"
+          - "{{ cluster_name }}-control-{{ "%02g"|format(i + 1) }}.{{ host_domain }}:{{ etcd_client_port }}"
         {% endfor %}

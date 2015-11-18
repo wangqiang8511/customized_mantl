@@ -48,7 +48,7 @@ Variables
 
    Default: ``mi``
 
-.. data:: domain
+.. data:: host_domain
 
    Domain of cluster, used for setup traefik domain
 

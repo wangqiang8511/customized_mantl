@@ -8,4 +8,4 @@ traefik_log_level: ERROR
 traefik_port: 80
 marathon_hosts: "localhost:8080"
 cluster_name: mi
-domain: localhost
+host_domain: localhost

@@ -23,6 +23,10 @@ You can use these variables to customize your swarm installation.
 
    Cluster name. Used as external label.
 
+.. data:: host_domain
+
+   Domain used for hosts.
+
 .. data:: promdash_image
 
    Docker image of promdash
