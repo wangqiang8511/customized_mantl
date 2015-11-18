@@ -3,6 +3,14 @@
 CONTAINER_NAME=promdash
 
 docker rm -f $CONTAINER_NAME
+docker run \
+    -i \
+    --rm \
+    --net=host \
+    -e DATABASE_URL=sqlite3:/data/promdash/file.sqlite3 \
+    -v /data/promdash:/data/promdash:rw \
+    prom/promdash:latest \
+    ./bin/rake db:migrate
 docker run --name $CONTAINER_NAME \
     -i \
     --net=host \
