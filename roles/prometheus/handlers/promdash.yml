@@ -1,11 +1,7 @@
 ---
-- name: restart prometheus
+- name: restart promdash
   sudo: yes
   supervisorctl: 
-    name: prometheus
+    name: promdash
     state: restarted
     supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
-
-- include: consul_exporter.yml
-
-- include: promdash.yml

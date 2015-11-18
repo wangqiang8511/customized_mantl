@@ -1,0 +1,13 @@
+#!/bin/bash
+
+CONTAINER_NAME=promdash
+
+docker rm -f $CONTAINER_NAME
+docker run --name $CONTAINER_NAME \
+    -i \
+    --net=host \
+    -e DATABASE_URL=sqlite3:/data/promdash/file.sqlite3 \
+    -e PROMDASH_PATH_PREFIX=/dash \
+    -v /data/promdash:/data/promdash:rw \
+    {{ promdash_image }}:{{ promdash_image_tag }} \
+    ./bin/thin -p {{ promdash_port }} start

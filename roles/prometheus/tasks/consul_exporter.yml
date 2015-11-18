@@ -1,5 +1,5 @@
 ---
-# Setup prometheus
+# Setup prometheus consul exporter
 - name: ensure customized bin
   sudo: yes
   file:

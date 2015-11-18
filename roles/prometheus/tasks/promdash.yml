@@ -1,0 +1,50 @@
+---
+# Setup prometheus dash
+- name: ensure customized bin
+  sudo: yes
+  file:
+    path: /opt/bin
+    state: directory
+  tags:
+    - prometheus
+    - promdash
+
+- name: setup start_promdash script
+  sudo: yes
+  template:
+    src: start_promdash.sh.j2
+    dest: /opt/bin/start_promdash.sh
+    mode: 0755
+  notify: restart promdash
+  tags:
+    - prometheus
+    - promdash
+
+- name: setup promdash supervisord config
+  sudo: yes
+  template:
+    src: promdash_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/promdash.conf"
+  notify: restart promdash
+  tags:
+    - prometheus 
+    - promdash
+
+- name: ensure promdash data dir
+  sudo: yes
+  file:
+    path: /data/promdash
+    state: directory
+  tags:
+    - prometheus
+    - promdash
+
+- name: start promdash supervisord
+  sudo: yes
+  supervisorctl: 
+    name: promdash
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  tags:
+    - prometheus
+    - promdash

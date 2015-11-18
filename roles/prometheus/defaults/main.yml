@@ -1,10 +1,18 @@
 ---
+# Prometheus
 supervisord_conf_dir: /etc/supervisord
 supervisord_exec_dir: /usr/local/bin
 prometheus_image: prom/prometheus
 prometheus_image_tag: 0.16.1
 cluster_name: mi
-prometheus_consul_exporter_image: prom/consul_exporter
+
+# Promdash
+promdash_image: prom/promdash
+promdash_image_tag: latest
+promdash_port: 9091
+
+# Consul exporter
+prometheus_consul_exporter_image: prom/consul-exporter
 prometheus_consul_exporter_image_tag: latest
 consul_hosts: "localhost:8500"
 consul_exporter_port: 9107

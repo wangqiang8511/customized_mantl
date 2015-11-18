@@ -19,11 +19,27 @@ You can use these variables to customize your swarm installation.
 
    Docker image tag of prometheus
 
-.. data:: prometheus_image
+.. data:: cluster_name
+
+   Cluster name. Used as external label.
+
+.. data:: promdash_image
+
+   Docker image of promdash
+
+.. data:: promdash_image_tag
+
+   Docker image tag of promdash
+
+.. data:: promdash_port
+
+   Port for promdash.
+
+.. data:: prometheus_consul_exporter_image
 
    Docker image of prometheus consul exporter
 
-.. data:: prometheus_image_tag
+.. data:: prometheus_consul_exporter_image_tag
 
    Docker image tag of prometheus consul exporter
 
@@ -34,7 +50,3 @@ You can use these variables to customize your swarm installation.
 .. data:: consul_hosts
 
    Consul hosts for monitoring.
-
-.. data:: cluster_name
-
-   Cluster name. Used as external label.

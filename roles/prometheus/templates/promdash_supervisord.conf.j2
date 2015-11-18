@@ -1,0 +1,11 @@
+[program:promdash]
+command= /opt/bin/start_promdash.sh
+autostart=true
+autorestart=true
+redirect_stderr=True
+nodaemon = False
+debug = False
+stdout_logfile = /var/tmp/promdash.out
+stderr_logfile = /var/tmp/promdash.err
+loglevel = "info"
+stopasgroup=true
