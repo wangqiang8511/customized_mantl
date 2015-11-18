@@ -50,3 +50,11 @@ You can use these variables to customize your swarm installation.
 .. data:: consul_hosts
 
    Consul hosts for monitoring.
+
+.. data:: etcd_size
+
+   Size of etcd cluster. Default 1.
+
+.. data:: etcd_client_port
+
+   Etcd client port. Default 2379.

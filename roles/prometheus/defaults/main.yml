@@ -19,5 +19,5 @@ consul_hosts: "localhost:8500"
 consul_exporter_port: 9107
 
 # Etcd config
-etcd_size: 3
+etcd_size: 1
 etcd_client_port: 2379
