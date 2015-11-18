@@ -1,0 +1,11 @@
+#!/bin/bash
+
+CONTAINER_NAME=prometheus-consul-exporter
+
+docker rm -f $CONTAINER_NAME
+docker run --name $CONTAINER_NAME \
+    -i \
+    --net=host \
+    {{ prometheus_consul_exporter_image }}:{{ prometheus_consul_exporter_image_tag }} \
+    --web.listen-address=":{{ consul_exporter_port }}" \
+    --consul.server="{{ consul_hosts }}"

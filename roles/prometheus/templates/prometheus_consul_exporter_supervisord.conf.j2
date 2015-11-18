@@ -1,0 +1,11 @@
+[program:prometheus_consul_exporter]
+command= /opt/bin/start_prometheus_consul_exporter.sh
+autostart=true
+autorestart=true
+redirect_stderr=True
+nodaemon = False
+debug = False
+stdout_logfile = /var/tmp/prometheus_consul_exporter.out
+stderr_logfile = /var/tmp/prometheus_consul_exporter.err
+loglevel = "info"
+stopasgroup=true

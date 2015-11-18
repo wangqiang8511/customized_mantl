@@ -60,3 +60,5 @@
     supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
   tags:
     - prometheus
+
+- include: consul_exporter.yml

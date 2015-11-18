@@ -1,9 +1,7 @@
 ---
-- name: restart prometheus
+- name: restart prometheus consul exporter
   sudo: yes
   supervisorctl: 
-    name: prometheus
+    name: prometheus_consul_exporter
     state: restarted
     supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
-
-- include: consul_exporter.yml

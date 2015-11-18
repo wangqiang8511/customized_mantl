@@ -1,0 +1,41 @@
+---
+# Setup prometheus
+- name: ensure customized bin
+  sudo: yes
+  file:
+    path: /opt/bin
+    state: directory
+  tags:
+    - prometheus
+    - consul_exporter
+
+- name: setup start_prometheus_consul_exporter script
+  sudo: yes
+  template:
+    src: start_prometheus_consul_exporter.sh.j2
+    dest: /opt/bin/start_prometheus_consul_exporter.sh
+    mode: 0755
+  notify: restart prometheus consul exporter
+  tags:
+    - prometheus
+    - consul_exporter
+
+- name: setup prometheus consul exporter supervisord config
+  sudo: yes
+  template:
+    src: prometheus_consul_exporter_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/prometheus_consul_exporter.conf"
+  notify: restart prometheus consul exporter
+  tags:
+    - prometheus 
+    - consul_exporter
+
+- name: start prometheus consul exporter supervisord
+  sudo: yes
+  supervisorctl: 
+    name: prometheus_consul_exporter 
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  tags:
+    - prometheus
+    - consul_exporter

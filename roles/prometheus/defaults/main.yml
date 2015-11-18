@@ -4,3 +4,7 @@ supervisord_exec_dir: /usr/local/bin
 prometheus_image: prom/prometheus
 prometheus_image_tag: 0.16.1
 cluster_name: mi
+prometheus_consul_exporter_image: prom/consul_exporter
+prometheus_consul_exporter_image_tag: latest
+consul_hosts: "localhost:8500"
+consul_exporter_port: 9107
