@@ -5,6 +5,7 @@ supervisord_exec_dir: /usr/local/bin
 prometheus_image: prom/prometheus
 prometheus_image_tag: 0.16.1
 cluster_name: mi
+domain: localhost
 
 # Promdash
 promdash_image: prom/promdash
@@ -16,3 +17,7 @@ prometheus_consul_exporter_image: prom/consul-exporter
 prometheus_consul_exporter_image_tag: latest
 consul_hosts: "localhost:8500"
 consul_exporter_port: 9107
+
+# Etcd config
+etcd_size: 3
+etcd_client_port: 2379

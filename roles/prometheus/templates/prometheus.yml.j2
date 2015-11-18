@@ -1,3 +1,4 @@
+# Global settings
 global:
   scrape_interval:     15s # By default, scrape targets every 15 seconds.
   evaluation_interval: 15s # By default, scrape targets every 15 seconds.
@@ -8,10 +9,8 @@ global:
   external_labels:
     monitor: '{{ cluster_name}}'
 
-# A scrape configuration containing exactly one endpoint to scrape:
-# Here it's Prometheus itself.
 scrape_configs:
-  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  # Prometheus.
   - job_name: 'prometheus'
 
     # Override the global default and scrape targets from this job every 5 seconds.
@@ -21,6 +20,7 @@ scrape_configs:
     target_groups:
       - targets: ['localhost:9090']
 
+  # Consul
   - job_name: 'consul'
 
     # Override the global default and scrape targets from this job every 5 seconds.
@@ -29,3 +29,16 @@ scrape_configs:
 
     target_groups:
       - targets: ['localhost:{{ consul_exporter_port }}']
+
+  # etcd
+  - job_name: 'etcd'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+    scrape_timeout: 10s
+
+    target_groups:
+      - targets: 
+      {% for i in range(etcd_size) -%}
+        - "{{ cluster_name }}-control-{{ str(i + 1).zfill(2) }}.{{ domain }}:{{ etcd_clent_port }}"
+      {%- endfor %}
