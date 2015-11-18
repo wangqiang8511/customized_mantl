@@ -21,3 +21,9 @@ consul_exporter_port: 9107
 # Etcd config
 etcd_size: 1
 etcd_client_port: 2379
+
+# Mesos exporter
+prometheus_mesos_exporter_image: prom/mesos-exporter
+prometheus_mesos_exporter_image_tag: latest
+mesos_hosts: "localhost:5050"
+mesos_exporter_port: 9108

@@ -1,0 +1,41 @@
+---
+# Setup prometheus mesos exporter
+- name: ensure customized bin
+  sudo: yes
+  file:
+    path: /opt/bin
+    state: directory
+  tags:
+    - prometheus
+    - mesos_exporter
+
+- name: setup start_prometheus_mesos_exporter script
+  sudo: yes
+  template:
+    src: start_prometheus_mesos_exporter.sh.j2
+    dest: /opt/bin/start_prometheus_mesos_exporter.sh
+    mode: 0755
+  notify: restart prometheus mesos exporter
+  tags:
+    - prometheus
+    - mesos_exporter
+
+- name: setup prometheus mesos exporter supervisord config
+  sudo: yes
+  template:
+    src: prometheus_mesos_exporter_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/prometheus_mesos_exporter.conf"
+  notify: restart prometheus mesos exporter
+  tags:
+    - prometheus 
+    - mesos_exporter
+
+- name: start prometheus mesos exporter supervisord
+  sudo: yes
+  supervisorctl: 
+    name: prometheus_mesos_exporter 
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  tags:
+    - prometheus
+    - mesos_exporter

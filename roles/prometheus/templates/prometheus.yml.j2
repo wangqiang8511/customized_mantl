@@ -42,3 +42,15 @@ scrape_configs:
         {% for i in range(etcd_size) -%}
           - "{{ cluster_name }}-control-{{ "%02g"|format(i + 1) }}.{{ host_domain }}:{{ etcd_client_port }}"
         {% endfor %}
+
+  # Mesos
+  - job_name: 'mesos'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+    scrape_timeout: 10s
+
+    target_groups:
+      - targets: ['localhost:{{ mesos_exporter_port }}']
+
+

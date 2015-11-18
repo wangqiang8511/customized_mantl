@@ -1,0 +1,14 @@
+#!/bin/bash
+
+CONTAINER_NAME=prometheus-mesos-exporter
+
+docker rm -f $CONTAINER_NAME
+docker run --name $CONTAINER_NAME \
+    -i \
+    --net=host \
+    {{ prometheus_mesos_exporter_image }}:{{ prometheus_mesos_exporter_image_tag }} \
+    --exporter.discover-interval=60s \
+    --exporter.interval=15s \
+    --exporter.scrape-mode=discover \
+    --web.listen-address=":{{ mesos_exporter_port }}" \
+    -exporter.url=http://{{ mesos_hosts }}

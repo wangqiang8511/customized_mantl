@@ -1,0 +1,7 @@
+---
+- name: restart prometheus mesos exporter
+  sudo: yes
+  supervisorctl: 
+    name: prometheus_mesos_exporter
+    state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
