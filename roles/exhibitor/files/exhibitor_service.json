@@ -1,0 +1,10 @@
+{ 
+  "service": {
+    "name": "exhibitor",
+    "check": {
+      "script": "/opt/bin/supervisor_service_check.sh exhibitor",
+      "interval": "15s",
+      "timeout": "2s"
+    }
+  }
+}

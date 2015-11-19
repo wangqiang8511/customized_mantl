@@ -50,3 +50,12 @@
     supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
   tags:
     - exhibitor
+
+- name: setup consul service check exhibitor
+  sudo: yes
+  copy:
+    src: exhibitor_service.json
+    dest: /etc/consul.d/exhibitor_service.json
+  notify: reload consul config
+  tags:
+    - exhibitor
