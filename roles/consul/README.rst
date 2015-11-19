@@ -25,4 +25,8 @@ You can use these variables to customize your Consul installation.
 
 .. data:: consul_leader
 
-   Leader for consul cluser
+   Leader for consul cluster
+
+.. data:: consul_mode
+
+   Mode of current consul instance.

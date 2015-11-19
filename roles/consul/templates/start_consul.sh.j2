@@ -14,13 +14,23 @@ docker run --name $CONTAINER_NAME \
     -bootstrap-expect {{ consul_size }}
 {% endif %}
 
-{% if inventory_hostname != consul_leader %}
+{% if inventory_hostname != consul_leader and consul_mode == "server" %}
 docker run --name $CONTAINER_NAME \
     -i \
     --net=host \
     -v /data/consul:/data:rw \
     {{ consul_image }}:{{ consul_image_tag }} \
     -server \
+    -advertise {{ private_ipv4 }} \
+    -join {{ hostvars[consul_leader].private_ipv4 }}
+{% endif %}
+
+{% if inventory_hostname != consul_leader and consul_mode == "agent" %}
+docker run --name $CONTAINER_NAME \
+    -i \
+    --net=host \
+    -v /data/consul:/data:rw \
+    {{ consul_image }}:{{ consul_image_tag }} \
     -advertise {{ private_ipv4 }} \
     -join {{ hostvars[consul_leader].private_ipv4 }}
 {% endif %}

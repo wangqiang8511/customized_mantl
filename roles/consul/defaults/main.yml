@@ -2,3 +2,4 @@
 consul_image: progrium/consul
 consul_image_tag: latest
 consul_size: 3
+consul_mode: server
