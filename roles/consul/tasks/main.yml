@@ -36,7 +36,7 @@
 - name: setup supervisor service check script
   sudo: yes
   template:
-    src: supervisor_service_check.sh
+    src: supervisor_service_check.sh.j2
     dest: /opt/bin/supervisor_service_check.sh
     mode: 0755
   notify: restart consul
