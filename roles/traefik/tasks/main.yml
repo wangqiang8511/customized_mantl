@@ -51,3 +51,12 @@
     supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
   tags:
     - traefik
+
+- name: setup consul service check traefik
+  sudo: yes
+  copy:
+    src: traefik_service.json
+    dest: /etc/consul.d/traefik_service.json
+  notify: reload consul config
+  tags:
+    - traefik
