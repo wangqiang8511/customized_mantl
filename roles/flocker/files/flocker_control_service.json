@@ -1,0 +1,10 @@
+{ 
+  "service": {
+    "name": "flocker_control",
+    "check": {
+      "script": "/opt/bin/system_service_check.sh flocker-control",
+      "interval": "15s",
+      "timeout": "2s"
+    }
+  }
+}

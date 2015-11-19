@@ -1,0 +1,22 @@
+{ 
+  "service": {
+    "name": "flocker_agent",
+    "check": [
+      {
+        "script": "/opt/bin/system_service_check.sh flocker-docker-plugin",
+        "interval": "15s",
+        "timeout": "2s"
+      },
+      {
+        "script": "/opt/bin/system_service_check.sh flocker-dataset-agent",
+        "interval": "15s",
+        "timeout": "2s"
+      },
+      {
+        "script": "/opt/bin/system_service_check.sh flocker-container-agent",
+        "interval": "15s",
+        "timeout": "2s"
+      }
+    ]
+  }
+}

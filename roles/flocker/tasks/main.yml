@@ -255,4 +255,24 @@
     - docker
     - flocker
 
+- name: setup consul service check control
+  sudo: yes
+  copy:
+    src: flocker_control_service.json
+    dest: /etc/consul.d/flocker_control_service.json
+  when: flocker_mode == "control"
+  tags:
+    - docker
+    - flocker
+
+- name: setup consul service check agent
+  sudo: yes
+  copy:
+    src: flocker_agent_service.json
+    dest: /etc/consul.d/flocker_agent_service.json
+  when: flocker_mode == "agent"
+  tags:
+    - docker
+    - flocker
+
 - include: flocker_ui.yml

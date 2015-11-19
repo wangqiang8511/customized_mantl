@@ -43,3 +43,13 @@
   tags:
     - docker
     - flocker
+
+- name: setup consul service check flocker ui
+  sudo: yes
+  copy:
+    src: flocker_ui_service.json
+    dest: /etc/consul.d/flocker_ui_service.json
+  when: flocker_mode == "control"
+  tags:
+    - docker
+    - flocker
