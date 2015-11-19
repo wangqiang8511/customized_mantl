@@ -70,6 +70,15 @@
   tags:
     - etcd_proxy
 
+- name: setup consul service check etcd proxy
+  sudo: yes
+  copy:
+    src: etcd_proxy_service.json
+    dest: /etc/consul.d/etcd_proxy_service.json
+  notify: reload consul config
+  tags:
+    - etcd_proxy
+
 # Setup swarm agent
 - name: setup start_swarm_agent script
   sudo: yes
@@ -102,6 +111,16 @@
   tags:
     - swarm_agent
 
+- name: setup consul service check swarm agent
+  sudo: yes
+  copy:
+    src: swarm_agent_service.json
+    dest: /etc/consul.d/swarm_agent_service.json
+  notify: reload consul config
+  when: swarm_mode == "agent"
+  tags:
+    - swarm_agent
+
 # Setup swarm manager
 - name: setup start_swarm_manager script
   sudo: yes
@@ -130,6 +149,16 @@
     name: swarm_manager
     state: present
     supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  when: swarm_mode == "manager"
+  tags:
+    - swarm_manager
+
+- name: setup consul service check swarm manager
+  sudo: yes
+  copy:
+    src: swarm_manager_service.json
+    dest: /etc/consul.d/swarm_manager_service.json
+  notify: reload consul config
   when: swarm_mode == "manager"
   tags:
     - swarm_manager
