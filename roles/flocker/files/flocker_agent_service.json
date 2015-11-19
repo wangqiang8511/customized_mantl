@@ -1,7 +1,7 @@
 { 
   "service": {
     "name": "flocker_agent",
-    "check": [
+    "checks": [
       {
         "script": "/opt/bin/system_service_check.sh flocker-docker-plugin",
         "interval": "15s",
