@@ -59,3 +59,23 @@
   when: mesos_mode == "slave"
   tags:
     - mesos
+
+- name: setup consul service check mesos master
+  sudo: yes
+  copy:
+    src: mesos_master_service.json
+    dest: /etc/consul.d/mesos_master_service.json
+  when: mesos_mode == "master"
+  notify: reload consul config
+  tags:
+    - mesos
+
+- name: setup consul service check mesos slave
+  sudo: yes
+  copy:
+    src: mesos_slave_service.json
+    dest: /etc/consul.d/mesos_slave_service.json
+  when: mesos_mode == "slave"
+  notify: reload consul config
+  tags:
+    - mesos

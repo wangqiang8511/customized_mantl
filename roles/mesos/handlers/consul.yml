@@ -1,0 +1,4 @@
+---
+- name: reload consul config
+  sudo: yes
+  shell: "/opt/bin/consul reload"

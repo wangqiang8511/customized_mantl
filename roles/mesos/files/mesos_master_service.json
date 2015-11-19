@@ -1,0 +1,10 @@
+{ 
+  "service": {
+    "name": "mesos_master",
+    "check": {
+      "script": "/opt/bin/supervisor_service_check.sh mesos_master",
+      "interval": "15s",
+      "timeout": "2s"
+    }
+  }
+}

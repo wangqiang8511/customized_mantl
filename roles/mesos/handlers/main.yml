@@ -12,3 +12,5 @@
     name: mesos_slave
     state: restarted
     supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+
+- include: consul.yml
