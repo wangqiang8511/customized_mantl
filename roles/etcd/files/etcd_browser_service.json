@@ -1,0 +1,10 @@
+{ 
+  "service": {
+    "name": "etcd_browser",
+    "check": {
+      "script": "/opt/bin/supervisor_service_check.sh etcd_browser",
+      "interval": "15s",
+      "timeout": "2s"
+    }
+  }
+}

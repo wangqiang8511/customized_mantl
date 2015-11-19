@@ -35,4 +35,13 @@
   tags:
     - etcd
 
+- name: setup consul service check etcd
+  sudo: yes
+  copy:
+    src: etcd_service.json
+    dest: /etc/consul.d/etcd_service.json
+  notify: reload consul config
+  tags:
+    - etcd
+
 - include: etcd_browser.yml

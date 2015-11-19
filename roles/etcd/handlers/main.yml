@@ -7,3 +7,5 @@
     supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
 
 - include: etcd_browser.yml
+
+- include: consul.yml
