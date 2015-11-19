@@ -90,6 +90,18 @@ def generate_zk_hosts(config):
     return config
 
 
+def generate_marathon_hosts(config):
+    master_count = int(config["master_count"])
+    marathon_hosts = []
+    for i in range(1, master_count + 1):
+        marathon_hosts.append("%s-control-%s.%s:8080" %
+                              (config["cluster_name"],
+                               str(i).zfill(2),
+                               config["domain"]))
+    config["marathon_hosts"] = ",".join(marathon_hosts)
+    return config
+
+
 def render_template(config, template_name, outfile):
     env = Environment(loader=FileSystemLoader(tmpl_dir))
     template = env.get_template(template_name)
