@@ -38,8 +38,8 @@
 
 - hosts: role=control
   roles:
-    - etcd
     - consul
+    - etcd
     - exhibitor
 
 - hosts: "role=master:role=worker"

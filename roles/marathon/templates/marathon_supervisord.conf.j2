@@ -6,6 +6,7 @@ command= /opt/marathon-{{ marathon_version }}/bin/start
 directory=/opt/marathon-{{ marathon_version }}
 autostart=true
 autorestart=true
+startretries=999
 redirect_stderr=True
 nodaemon = False
 debug = False
