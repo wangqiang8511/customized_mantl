@@ -39,3 +39,13 @@
   tags:
     - prometheus
     - consul_exporter
+
+- name: setup consul service check prometheus consul exporter
+  sudo: yes
+  copy:
+    src: prometheus_consul_exporter_service.json
+    dest: /etc/consul.d/prometheus_consul_exporter_service.json
+  notify: reload consul config
+  tags:
+    - prometheus
+    - consul_exporter

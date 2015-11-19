@@ -1,0 +1,10 @@
+{ 
+  "service": {
+    "name": "prometheus_mesos_exporter",
+    "check": {
+      "script": "/opt/bin/supervisor_service_check.sh prometheus_mesos_exporter",
+      "interval": "15s",
+      "timeout": "2s"
+    }
+  }
+}

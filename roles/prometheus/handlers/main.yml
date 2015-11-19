@@ -11,3 +11,5 @@
 - include: mesos_exporter.yml
 
 - include: promdash.yml
+
+- include: consul.yml

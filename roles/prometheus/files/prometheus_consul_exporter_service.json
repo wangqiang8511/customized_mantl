@@ -1,0 +1,10 @@
+{ 
+  "service": {
+    "name": "prometheus_consul_exporter",
+    "check": {
+      "script": "/opt/bin/supervisor_service_check.sh prometheus_consul_exporter",
+      "interval": "15s",
+      "timeout": "2s"
+    }
+  }
+}

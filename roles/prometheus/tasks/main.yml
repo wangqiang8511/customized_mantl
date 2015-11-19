@@ -61,6 +61,15 @@
   tags:
     - prometheus
 
+- name: setup consul service check prometheus
+  sudo: yes
+  copy:
+    src: prometheus_service.json
+    dest: /etc/consul.d/prometheus_service.json
+  notify: reload consul config
+  tags:
+    - prometheus
+
 - include: consul_exporter.yml
 
 - include: mesos_exporter.yml

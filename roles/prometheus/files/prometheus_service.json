@@ -1,0 +1,10 @@
+{ 
+  "service": {
+    "name": "prometheus",
+    "check": {
+      "script": "/opt/bin/supervisor_service_check.sh prometheus",
+      "interval": "15s",
+      "timeout": "2s"
+    }
+  }
+}
