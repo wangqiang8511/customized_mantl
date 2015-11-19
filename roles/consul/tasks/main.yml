@@ -34,6 +34,14 @@
   tags:
     - consul
 
+- name: add consul config
+  sudo: yes
+  copy:
+    src: consul.json
+    dest: /etc/consul.d/consul.json
+  tags:
+    - consul
+
 - name: setup system service check script
   sudo: yes
   copy:
