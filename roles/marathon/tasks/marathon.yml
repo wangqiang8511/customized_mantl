@@ -42,3 +42,12 @@
     supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
   tags:
     - marathon
+
+- name: setup consul service check marathon
+  sudo: yes
+  copy:
+    src: marathon_service.json
+    dest: /etc/consul.d/marathon_service.json
+  notify: reload consul config
+  tags:
+    - marathon

@@ -1,0 +1,10 @@
+{ 
+  "service": {
+    "name": "marathon",
+    "check": {
+      "script": "/opt/bin/supervisor_service_check.sh marathon",
+      "interval": "15s",
+      "timeout": "2s"
+    }
+  }
+}

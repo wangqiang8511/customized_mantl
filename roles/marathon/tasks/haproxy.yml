@@ -21,3 +21,12 @@
     state: started
   tags:
     - haproxy
+
+- name: setup consul service check haproxy
+  sudo: yes
+  copy:
+    src: haproxy_service.json
+    dest: /etc/consul.d/haproxy_service.json
+  notify: reload consul config
+  tags:
+    - haproxy

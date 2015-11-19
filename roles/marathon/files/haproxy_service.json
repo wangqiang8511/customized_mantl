@@ -1,0 +1,10 @@
+{ 
+  "service": {
+    "name": "haproxy",
+    "check": {
+      "script": "/opt/bin/system_service_check.sh haproxy",
+      "interval": "15s",
+      "timeout": "2s"
+    }
+  }
+}
