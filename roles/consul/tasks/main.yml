@@ -15,6 +15,34 @@
   tags:
     - consul
 
+- name: ensure consul config dir
+  sudo: yes
+  file: 
+    path: /etc/consul.d 
+    state: directory
+  tags:
+    - consul
+
+- name: setup system service check script
+  sudo: yes
+  copy:
+    src: system_service_check.sh
+    dest: /opt/bin/system_service_check.sh
+    mode: 0755
+  notify: restart consul
+  tags:
+    - consul
+
+- name: setup supervisor service check script
+  sudo: yes
+  template:
+    src: supervisor_service_check.sh
+    dest: /opt/bin/supervisor_service_check.sh
+    mode: 0755
+  notify: restart consul
+  tags:
+    - consul
+
 - name: setup start_consul script
   sudo: yes
   template:

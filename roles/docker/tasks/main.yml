@@ -54,4 +54,22 @@
     - docker
     - bootstrap
 
+- name: ensure consul config dir
+  sudo: yes
+  file: 
+    path: /etc/consul.d 
+    state: directory
+  tags:
+    - docker
+    - bootstrap
+
+- name: setup consul service check
+  sudo: yes
+  copy:
+    src: docker_service.json
+    dest: /etc/consul.d/docker_service.json
+  tags:
+    - docker
+    - bootstrap
+
 # - include: collectd.yml

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+usage() {
+    echo "usage: ${0##*/} [ service ]"
+    exit 1
+}
+
+check() {
+    res=$({{ supervisord_exec_dir }}/supervisorctl status "$1")
+    if [ $? -gt 1 ];
+    then
+        exit 2
+    fi
+    code=$(echo $res | grep RUNNING | wc -l)
+    if [ $code == 1 ];
+    then
+        exit 0
+    else
+        exit 2
+    fi
+}
+
+main() {
+    [[ -z "$1" ]] && usage || check "$1"
+}
+
+main "$@"
+
+# EOF

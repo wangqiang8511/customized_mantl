@@ -1,0 +1,10 @@
+{ 
+  "service": {
+    "name": "docker",
+    "check": {
+      "script": "/opt/bin/system_service_check.sh docker",
+      "interval": "15s",
+      "timeout": "2s"
+    }
+  }
+}
