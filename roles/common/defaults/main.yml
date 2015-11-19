@@ -23,6 +23,8 @@ system_pkgs_debian:
   - bridge-utils
   - lvm2
   - ntp
+  - zip
+  - unzip
 
 lvm_vg_name: vg_data
 lvol_list:
