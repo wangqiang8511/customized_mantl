@@ -3,7 +3,7 @@
 CONTAINER_NAME=consul
 
 {% if inventory_hostname == consul_leader %}
-/opt/bin/consul \
+/opt/bin/consul agent \
     -server \
     -advertise {{ private_ipv4 }} \
     -config-dir /etc/consul.d \
@@ -11,7 +11,7 @@ CONTAINER_NAME=consul
 {% endif %}
 
 {% if inventory_hostname != consul_leader and consul_mode == "server" %}
-/opt/bin/consul \
+/opt/bin/consul agent \
     -server \
     -advertise {{ private_ipv4 }} \
     -config-dir /etc/consul.d \
@@ -19,7 +19,7 @@ CONTAINER_NAME=consul
 {% endif %}
 
 {% if inventory_hostname != consul_leader and consul_mode == "agent" %}
-/opt/bin/consul \
+/opt/bin/consul agent \
     -advertise {{ private_ipv4 }} \
     -config-dir /etc/consul.d \
     -join {{ hostvars[consul_leader].private_ipv4 }}
