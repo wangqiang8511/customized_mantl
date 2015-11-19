@@ -7,6 +7,17 @@
   tags:
     - consul
 
+# Setup consul
+- name: setup consul binary
+  sudo: yes
+  copy:
+    src: consul 
+    dest: /opt/bin/consul
+    mode: 0755
+  notify: restart consul
+  tags:
+    - consul
+
 - name: ensure consul data dir
   sudo: yes
   file: 

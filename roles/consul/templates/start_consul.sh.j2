@@ -2,14 +2,8 @@
 
 CONTAINER_NAME=consul
 
-docker rm -f $CONTAINER_NAME
 {% if inventory_hostname == consul_leader %}
-docker run --name $CONTAINER_NAME \
-    -i \
-    --net=host \
-    -v /data/consul:/data:rw \
-    -v /etc/consul.d:/etc/consul.d:rw \
-    {{ consul_image }}:{{ consul_image_tag }} \
+/opt/bin/consul \
     -server \
     -advertise {{ private_ipv4 }} \
     -config-dir /etc/consul.d \
@@ -17,12 +11,7 @@ docker run --name $CONTAINER_NAME \
 {% endif %}
 
 {% if inventory_hostname != consul_leader and consul_mode == "server" %}
-docker run --name $CONTAINER_NAME \
-    -i \
-    --net=host \
-    -v /data/consul:/data:rw \
-    -v /etc/consul.d:/etc/consul.d:rw \
-    {{ consul_image }}:{{ consul_image_tag }} \
+/opt/bin/consul \
     -server \
     -advertise {{ private_ipv4 }} \
     -config-dir /etc/consul.d \
@@ -30,12 +19,7 @@ docker run --name $CONTAINER_NAME \
 {% endif %}
 
 {% if inventory_hostname != consul_leader and consul_mode == "agent" %}
-docker run --name $CONTAINER_NAME \
-    -i \
-    --net=host \
-    -v /data/consul:/data:rw \
-    -v /etc/consul.d:/etc/consul.d:rw \
-    {{ consul_image }}:{{ consul_image_tag }} \
+/opt/bin/consul \
     -advertise {{ private_ipv4 }} \
     -config-dir /etc/consul.d \
     -join {{ hostvars[consul_leader].private_ipv4 }}

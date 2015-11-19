@@ -11,14 +11,6 @@ Variables
 
 You can use these variables to customize your Consul installation.
 
-.. data:: consul_image
-
-   Docker image name for consul
-
-.. data:: consul_image_tag
-
-   Docker image tag for consul
-
 .. data:: consul_size
 
    cluster size for consul.
