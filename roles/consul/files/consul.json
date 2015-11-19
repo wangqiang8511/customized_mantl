@@ -1,6 +1,6 @@
 {
         "data_dir": "/data/consul",
-        "ui_dir": "/ui",
+        "ui_dir": "/opt/consul_ui/dist",
         "client_addr": "0.0.0.0",
         "ports": {
                 "dns": 53

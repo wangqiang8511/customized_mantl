@@ -1,7 +1,5 @@
 #!/bin/bash
 
-CONTAINER_NAME=consul
-
 {% if inventory_hostname == consul_leader %}
 /opt/bin/consul agent \
     -server \

@@ -34,11 +34,28 @@
   tags:
     - consul
 
+- name: ensure consul ui dir
+  sudo: yes
+  file: 
+    path: /opt/consul_ui
+    state: directory
+  tags:
+    - consul
+
+- name: setup ui file
+  sudo: yes
+  unarchive:
+    src: consul_web_ui.zip
+    dest: /opt/consul_ui
+  tags:
+    - consul
+
 - name: add consul config
   sudo: yes
   copy:
     src: consul.json
     dest: /etc/consul.d/consul.json
+  notify: restart consul
   tags:
     - consul
 
