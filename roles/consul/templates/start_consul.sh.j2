@@ -8,6 +8,7 @@ docker run --name $CONTAINER_NAME \
     -i \
     --net=host \
     -v /data/consul:/data:rw \
+    -v /etc/consul.d:/etc/consul.d:rw \
     {{ consul_image }}:{{ consul_image_tag }} \
     -server \
     -advertise {{ private_ipv4 }} \
@@ -20,6 +21,7 @@ docker run --name $CONTAINER_NAME \
     -i \
     --net=host \
     -v /data/consul:/data:rw \
+    -v /etc/consul.d:/etc/consul.d:rw \
     {{ consul_image }}:{{ consul_image_tag }} \
     -server \
     -advertise {{ private_ipv4 }} \
@@ -32,6 +34,7 @@ docker run --name $CONTAINER_NAME \
     -i \
     --net=host \
     -v /data/consul:/data:rw \
+    -v /etc/consul.d:/etc/consul.d:rw \
     {{ consul_image }}:{{ consul_image_tag }} \
     -advertise {{ private_ipv4 }} \
     -config-dir /etc/consul.d \
