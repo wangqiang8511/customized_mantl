@@ -1,6 +1,7 @@
 { 
   "service": {
     "name": "promdash",
+    "port": {{ promdash_port }},
     "check": {
       "script": "/opt/bin/supervisor_service_check.sh promdash",
       "interval": "15s",

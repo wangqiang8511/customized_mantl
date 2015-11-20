@@ -1,6 +1,7 @@
 { 
   "service": {
     "name": "swarm_manager",
+    "port": {{ swarm_manager_port }},
     "check": {
       "script": "/opt/bin/supervisor_service_check.sh swarm_manager",
       "interval": "15s",

@@ -1,6 +1,7 @@
 { 
   "service": {
     "name": "etcd_browser",
+    "port": {{ etcd_browser_port }},
     "check": {
       "script": "/opt/bin/supervisor_service_check.sh etcd_browser",
       "interval": "15s",

@@ -37,8 +37,8 @@
 
 - name: setup consul service check etcd
   sudo: yes
-  copy:
-    src: etcd_service.json
+  template:
+    src: etcd_service.json.j2
     dest: /etc/consul.d/etcd_service.json
   notify: reload consul config
   tags:

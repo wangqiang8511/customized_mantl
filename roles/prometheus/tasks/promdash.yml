@@ -51,19 +51,9 @@
 
 - name: setup consul service check promdash
   sudo: yes
-  copy:
-    src: promdash_service.json
+  template:
+    src: promdash_service.json.j2
     dest: /etc/consul.d/promdash_service.json
-  notify: reload consul config
-  tags:
-    - prometheus
-    - promdash
-
-- name: setup consul service check prometheus
-  sudo: yes
-  copy:
-    src: prometheus_service.json
-    dest: /etc/consul.d/prometheus_service.json
   notify: reload consul config
   tags:
     - prometheus

@@ -1,6 +1,7 @@
 { 
   "service": {
     "name": "flocker_ui",
+    "port": {{ flocker_ui_port }},
     "check": {
       "script": "/opt/bin/supervisor_service_check.sh flocker_ui",
       "interval": "15s",

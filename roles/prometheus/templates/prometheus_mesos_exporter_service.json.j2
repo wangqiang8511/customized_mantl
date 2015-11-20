@@ -1,6 +1,7 @@
 { 
   "service": {
     "name": "prometheus_mesos_exporter",
+    "port": {{ mesos_exporter_port }},
     "check": {
       "script": "/opt/bin/supervisor_service_check.sh prometheus_mesos_exporter",
       "interval": "15s",

@@ -53,8 +53,8 @@
 
 - name: setup consul service check exhibitor
   sudo: yes
-  copy:
-    src: exhibitor_service.json
+  template:
+    src: exhibitor_service.json.j2
     dest: /etc/consul.d/exhibitor_service.json
   notify: reload consul config
   tags:

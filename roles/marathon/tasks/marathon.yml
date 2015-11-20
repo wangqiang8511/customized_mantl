@@ -45,8 +45,8 @@
 
 - name: setup consul service check marathon
   sudo: yes
-  copy:
-    src: marathon_service.json
+  template:
+    src: marathon_service.json.j2
     dest: /etc/consul.d/marathon_service.json
   notify: reload consul config
   tags:

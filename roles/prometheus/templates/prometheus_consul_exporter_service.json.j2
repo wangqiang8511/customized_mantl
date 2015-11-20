@@ -1,6 +1,7 @@
 { 
   "service": {
     "name": "prometheus_consul_exporter",
+    "port": {{ consul_exporter_port }},
     "check": {
       "script": "/opt/bin/supervisor_service_check.sh prometheus_consul_exporter",
       "interval": "15s",

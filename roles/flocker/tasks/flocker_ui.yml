@@ -46,8 +46,8 @@
 
 - name: setup consul service check flocker ui
   sudo: yes
-  copy:
-    src: flocker_ui_service.json
+  template:
+    src: flocker_ui_service.json.j2
     dest: /etc/consul.d/flocker_ui_service.json
   when: flocker_mode == "control"
   tags:

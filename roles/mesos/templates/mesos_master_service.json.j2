@@ -1,6 +1,7 @@
 { 
   "service": {
     "name": "mesos_master",
+    "port": 5050,
     "check": {
       "script": "/opt/bin/supervisor_service_check.sh mesos_master",
       "interval": "15s",

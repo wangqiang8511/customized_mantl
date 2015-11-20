@@ -72,8 +72,8 @@
 
 - name: setup consul service check etcd proxy
   sudo: yes
-  copy:
-    src: etcd_proxy_service.json
+  template:
+    src: etcd_proxy_service.json.j2
     dest: /etc/consul.d/etcd_proxy_service.json
   notify: reload consul config
   tags:
@@ -113,8 +113,8 @@
 
 - name: setup consul service check swarm agent
   sudo: yes
-  copy:
-    src: swarm_agent_service.json
+  template:
+    src: swarm_agent_service.json.j2
     dest: /etc/consul.d/swarm_agent_service.json
   notify: reload consul config
   when: swarm_mode == "agent"
@@ -155,8 +155,8 @@
 
 - name: setup consul service check swarm manager
   sudo: yes
-  copy:
-    src: swarm_manager_service.json
+  template:
+    src: swarm_manager_service.json.j2
     dest: /etc/consul.d/swarm_manager_service.json
   notify: reload consul config
   when: swarm_mode == "manager"

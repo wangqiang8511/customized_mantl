@@ -42,8 +42,8 @@
 
 - name: setup consul service check prometheus mesos exporter
   sudo: yes
-  copy:
-    src: prometheus_mesos_exporter_service.json
+  template:
+    src: prometheus_mesos_exporter_service.json.j2
     dest: /etc/consul.d/prometheus_mesos_exporter_service.json
   notify: reload consul config
   tags:

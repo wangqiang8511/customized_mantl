@@ -1,6 +1,7 @@
 { 
   "service": {
     "name": "swarm_agent",
+    "port": {{ docker_tcp_port }},
     "check": {
       "script": "/opt/bin/supervisor_service_check.sh swarm_agent",
       "interval": "15s",

@@ -29,8 +29,8 @@
 
 - name: setup consul service check etcd browser
   sudo: yes
-  copy:
-    src: etcd_browser_service.json
+  template:
+    src: etcd_browser_service.json.j2
     dest: /etc/consul.d/etcd_browser_service.json
   notify: reload consul config
   tags:

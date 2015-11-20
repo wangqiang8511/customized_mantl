@@ -63,8 +63,8 @@
 
 - name: setup consul service check prometheus
   sudo: yes
-  copy:
-    src: prometheus_service.json
+  tempate:
+    src: prometheus_service.json.j2
     dest: /etc/consul.d/prometheus_service.json
   notify: reload consul config
   tags:
