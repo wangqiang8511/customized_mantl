@@ -94,9 +94,9 @@ def generate_marathon_hosts(config):
     master_count = int(config["master_count"])
     marathon_hosts = []
     for i in range(1, master_count + 1):
-        marathon_hosts.append("%s-control-%s.%s:8080" %
+        marathon_hosts.append("%s-master-%s.%s:8080" %
                               (config["cluster_name"],
-                               str(i).zfill(2),
+                               str(i).zfill(3),
                                config["domain"]))
     config["marathon_hosts"] = ",".join(marathon_hosts)
     return config
