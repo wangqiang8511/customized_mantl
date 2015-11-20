@@ -64,3 +64,27 @@ resource "aws_route53_record" "dns-public-worker" {
   type = "A"
   ttl = 60
 }
+
+resource "aws_route53_record" "dns-control-proxy" {
+  zone_id = "${var.hosted_zone_id}"
+  name = "*.${var.short_name}-control.${var.domain}"
+  records = ["${split(\",\", var.control_private_ips)}"]
+  type = "A"
+  ttl = 60
+}
+
+resource "aws_route53_record" "dns-master-proxy" {
+  zone_id = "${var.hosted_zone_id}"
+  name = "*.${var.short_name}-master.${var.domain}"
+  records = ["${split(\",\", var.master_private_ips)}"]
+  type = "A"
+  ttl = 60
+}
+
+resource "aws_route53_record" "dns-worker-proxy" {
+  zone_id = "${var.hosted_zone_id}"
+  name = "*.${var.short_name}-worker.${var.domain}"
+  records = ["${split(\",\", var.worker_private_ips)}"]
+  type = "A"
+  ttl = 60
+}
