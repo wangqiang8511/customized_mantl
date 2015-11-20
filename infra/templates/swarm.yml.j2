@@ -43,6 +43,16 @@
     - exhibitor
 
 - hosts: "role=master:role=worker"
+  vars:
+    consul_mode: agent
+  roles:
+    - consul
+
+- hosts: "role=master:role=worker"
+  roles:
+    - etcd_proxy
+
+- hosts: "role=master:role=worker"
   roles:
     - calico
 

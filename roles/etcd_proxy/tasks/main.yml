@@ -1,0 +1,46 @@
+---
+# Setup etcd proxy
+- name: ensure customized bin
+  sudo: yes
+  file:
+    path: /opt/bin
+    state: directory
+  tags:
+    - swarm_agent
+
+- name: setup start_etcd_proxy script
+  sudo: yes
+  template:
+    src: start_etcd_proxy.sh.j2
+    dest: /opt/bin/start_etcd_proxy.sh
+    mode: 0755
+  notify: restart etcd proxy
+  tags:
+    - etcd_proxy
+
+- name: setup etcd proxy supervisord config
+  sudo: yes
+  template:
+    src: etcd_proxy_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/etcd_proxy.conf"
+  notify: restart etcd proxy
+  tags:
+    - etcd_proxy
+
+- name: start etcd proxy supervisord
+  sudo: yes
+  supervisorctl: 
+    name: etcd_proxy
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  tags:
+    - etcd_proxy
+
+- name: setup consul service check etcd proxy
+  sudo: yes
+  template:
+    src: etcd_proxy_service.json.j2
+    dest: /etc/consul.d/etcd_proxy_service.json
+  notify: reload consul config
+  tags:
+    - etcd_proxy
