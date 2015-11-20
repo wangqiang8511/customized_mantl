@@ -21,7 +21,6 @@
 - hosts: all
   roles:
     - common
-    - collectd
     - docker
 
 - hosts: {{ cluster_name }}-control-01
@@ -68,3 +67,14 @@
   roles:
     - marathon
     - traefik
+
+- hosts: all
+  roles:
+    - node_exporter
+
+- hosts: {{ prometheus_host }}
+  vars:
+    mesos_hosts: "{{ mesos_hosts }}"
+    consul_hosts: "{{ consul_host }}"
+  roles:
+    - prometheus

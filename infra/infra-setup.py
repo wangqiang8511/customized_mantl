@@ -102,6 +102,32 @@ def generate_marathon_hosts(config):
     return config
 
 
+def generate_mesos_hosts(config):
+    mesos_hosts = "%s-master-%s.%s:5050" % (
+        config["cluster_name"],
+        str(1).zfill(3),
+        config["domain"])
+    config["mesos_hosts"] = mesos_hosts
+    return config
+
+
+def generate_consul_hosts(config):
+    consul_hosts = "%s-control-%s.%s:8500" % (
+        config["cluster_name"],
+        str(1).zfill(2),
+        config["domain"])
+    config["consul_hosts"] = consul_hosts
+    return config
+
+
+def generate_prometheus_host(config):
+    prometheus_host_tag = "%s-control-%s" % (
+        config["cluster_name"],
+        str(1).zfill(2))
+    config["prometheus_host"] = prometheus_host_tag
+    return config
+
+
 def render_template(config, template_name, outfile):
     env = Environment(loader=FileSystemLoader(tmpl_dir))
     template = env.get_template(template_name)
@@ -122,6 +148,10 @@ def infra_setup(config_file):
     render_template(config, "aws.tf.j2", out_aws_tf)
     config = generate_ectd_discovery(config)
     config = generate_zk_hosts(config)
+    config = generate_mesos_hosts(config)
+    config = generate_marathon_hosts(config)
+    config = generate_consul_hosts(config)
+    config = generate_prometheus_host(config)
     out_cluster_yml = os.path.join(out_dir, "cluster.yml")
     render_template(config, "cluster.yml.j2", out_cluster_yml)
     out_infra_ansible_yml = os.path.join(out_dir, "infra_ansible.yml")
