@@ -90,3 +90,7 @@
     consul_hosts: "{{ consul_host }}"
   roles:
     - prometheus
+
+- hosts: {{ cluster_name }}-control-01
+  roles:
+    - infra_ui
