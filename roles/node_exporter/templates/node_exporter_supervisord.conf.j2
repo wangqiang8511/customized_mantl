@@ -1,0 +1,13 @@
+[program:node_exporter]
+command= /opt/bin/node_exporter
+         --web.listen-address=":{{ node_exporter_port }}"
+autostart=true
+autorestart=true
+startretries=999
+redirect_stderr=True
+nodaemon = False
+debug = False
+stdout_logfile = /var/tmp/node_exporter.out
+stderr_logfile = /var/tmp/node_exporter.err
+loglevel = "info"
+stopasgroup=true

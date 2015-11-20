@@ -1,0 +1,11 @@
+{ 
+  "service": {
+    "name": "node_exporter",
+    "port": {{ node_exporter_port }},
+    "check": {
+      "script": "/opt/bin/supervisor_service_check.sh node_exporter",
+      "interval": "15s",
+      "timeout": "2s"
+    }
+  }
+}

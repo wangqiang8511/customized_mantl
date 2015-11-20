@@ -1,0 +1,9 @@
+---
+- name: restart node exporter
+  sudo: yes
+  supervisorctl: 
+    name: node_exporter
+    state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+
+- include: consul.yml

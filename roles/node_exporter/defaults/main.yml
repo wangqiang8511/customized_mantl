@@ -1,0 +1,4 @@
+---
+supervisord_conf_dir: /etc/supervisord
+supervisord_exec_dir: /usr/local/bin
+node_export_port: 9109

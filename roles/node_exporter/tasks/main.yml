@@ -1,0 +1,51 @@
+---
+# Setup prometheus node exporter
+- name: ensure customized bin
+  sudo: yes
+  file:
+    path: /opt/bin
+    state: directory
+  tags:
+    - prometheus
+    - node_exporter
+
+- name: setup node exporter binary
+  sudo: yes
+  copy:
+    src: node_exporter
+    dest: /opt/bin/node_exporter
+    mode: 0755
+  notify: restart node exporter
+  tags:
+    - prometheus
+    - node_exporter
+
+- name: setup prometheus node exporter supervisord config
+  sudo: yes
+  template:
+    src: node_exporter_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/node_exporter.conf"
+  notify: restart node exporter
+  tags:
+    - prometheus 
+    - node_exporter
+
+- name: start prometheus node exporter supervisord
+  sudo: yes
+  supervisorctl: 
+    name: node_exporter 
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  tags:
+    - prometheus
+    - node_exporter
+
+- name: setup consul service check prometheus node exporter
+  sudo: yes
+  template:
+    src: node_exporter_service.json.j2
+    dest: /etc/consul.d/node_exporter_service.json
+  notify: reload consul config
+  tags:
+    - prometheus
+    - node_exporter
