@@ -1,0 +1,9 @@
+---
+- name: restart infra ui
+  sudo: yes
+  supervisorctl: 
+    name: infra_ui
+    state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+
+- include: consul.yml

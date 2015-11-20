@@ -1,0 +1,13 @@
+[program:infra_ui]
+command= python -m SimpleHTTPServer {{ infra_ui_port }}
+directory=/opt/infra_ui/infra_ui
+autostart=true
+autorestart=true
+startretries=999
+redirect_stderr=True
+nodaemon = False
+debug = False
+stdout_logfile = /var/tmp/infra_ui.out
+stderr_logfile = /var/tmp/infra_ui.err
+loglevel = "info"
+stopasgroup=true

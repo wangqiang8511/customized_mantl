@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Micro-Service Infra UI</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/sb-admin.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <a class="navbar-brand" href="index.html">Infra Admin</a>
+            </div>
+            <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav side-nav">
+                    <li>
+                        <a href="javascript:;" data-toggle="collapse" data-target="#control"><i class="fa fa-fw fa-users"></i> Control <i class="fa fa-fw fa-caret-down"></i></a>
+                        <ul id="control" class="collapse">
+                            <li>
+			    <a class="iframecontrol" title="Consul" src="http://{{ cluster_name }}-control-01.{{ host_domain }}:8500">Consul</a>
+                            </li>
+                            <li>
+			    <a class="iframecontrol" title= "Etcd" src="http://{{ cluster_name }}-control-01.{{ host_domain }}:{{ etcd_brower_port }}">Etcd</a>
+                            </li>
+                            <li>
+			    <a class="iframecontrol" title="Exhibitor" src="http://{{ cluster_name }}-control-01.{{ host_domain }}:8080">Exhibitor</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:;" data-toggle="collapse" data-target="#mesos"><i class="fa fa-fw fa-cubes"></i> Mesos <i class="fa fa-fw fa-caret-down"></i></a>
+                        <ul id="mesos" class="collapse">
+                            <li>
+			    <a class="iframecontrol" title="Mesos" src="http://{{ cluster_name }}-master-001.{{ host_domain }}:5050">Mesos Master</a>
+                            </li>
+                            <li>
+			    <a class="iframecontrol" title= "Marathon" src="http://{{ cluster_name }}-master-001.{{ host_domain }}:8080">Marathon</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:;" data-toggle="collapse" data-target="#utils"><i class="fa fa-fw fa-cog"></i> Utils <i class="fa fa-fw fa-caret-down"></i></a>
+                        <ul id="utils" class="collapse">
+                            <li>
+			    <a class="iframecontrol" title="Prometheus" src="http://{{ prometheus_host }}.{{ host_domain }}:9090">Prometheus</a>
+                            </li>
+                            <li>
+			    <a class="iframecontrol" title= "PromeDash" src="http://{{ prometheus_host }}.{{ host_domain }}:{{ promdash_port }}">PromeDash</a>
+                            </li>
+                            <li>
+			    <a class="iframecontrol" title= "Traefik" src="http://{{ cluster_name }}-master-001.{{ host_domain }}:{{ traefik_api_port }}">Traefik</a>
+                            </li>
+                            <li>
+			    <a class="iframecontrol" title= "Flocker" src="http://{{ cluster_name }}-control-01.{{ host_domain }}:{{ flocker_ui_port }}/client">Flocker</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:;" data-toggle="collapse" data-target="#servers"><i class="fa fa-fw fa-desktop"></i> Servers <i class="fa fa-fw fa-caret-down"></i></a>
+                        <ul id="servers" class="collapse">
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </nav>
+
+        <div id="page-wrapper">
+
+            <div class="container-fluid">
+
+                <!-- Page Heading -->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 id="pagetitle" class="page-header">
+                            Consul
+                        </h1>
+                    </div>
+                </div>
+                <!-- /.row -->
+                <div class="row">
+                    <div class="col-lg-12">
+			    <iframe id="maincontent" src="http://{{ cluster_name }}-control-01.{{ host_domain }}:8500" width=100% height=2000px></iframe> 
+                    </div>
+                </div>
+            <!-- /.container-fluid -->
+
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- Morris Charts JavaScript -->
+    <script>
+        $.ajax({
+            url: "http://{{ cluster_name }}-control-01.{{ host_domain }}:8500/v1/catalog/nodes", 
+            success: function(data){                          
+                console.log(data);
+                $("#servers").empty();
+                for (i = 0; i < data.length; i++) {
+                    var newli = '<li> <a class="iframecontrol" title= "' 
+                        + data[i].Node 
+                        + '" src="http://' 
+                        + data[i].Address + ":40001" + '">' 
+                        + data[i].Node.split(".")[0] + '</a> </li>';
+                    $("#servers").append(newli);
+                }
+            }           
+        });  
+
+        $(document).ready(function(){
+            $(".collapse").on('click', '.iframecontrol', function(){
+                console.log("clicked " + $(this).attr('title'));
+                $("#pagetitle").text($(this).attr('title'));
+                $("#maincontent").attr('src', $(this).attr('src'));
+            });
+        }); 
+ 
+
+    </script>
+
+</body>
+
+</html>

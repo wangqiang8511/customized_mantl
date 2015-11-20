@@ -1,0 +1,11 @@
+{ 
+  "service": {
+    "name": "infra_ui",
+    "port": {{ infra_ui_port }},
+    "check": {
+      "script": "/opt/bin/supervisor_service_check.sh infra_ui",
+      "interval": "15s",
+      "timeout": "2s"
+    }
+  }
+}

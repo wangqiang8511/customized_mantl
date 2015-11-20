@@ -1,0 +1,51 @@
+---
+- name: ensure infra ui dir
+  sudo: yes
+  file: 
+    path: /opt/infra_ui
+    state: directory
+  tags:
+    - infra_ui
+
+- name: setup ui file
+  sudo: yes
+  unarchive:
+    src: infra_ui.zip
+    dest: /opt/infra_ui
+  tags:
+    - infra_ui
+
+- name: update ui index
+  sudo: yes
+  template:
+    src: index.html.j2
+    dest: /opt/infra_ui/infra_ui/index.html
+  tags:
+    - infra_ui
+
+- name: setup infra_ui supervisord config
+  sudo: yes
+  template:
+    src: infra_ui_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/infra_ui.conf"
+  notify: restart infra ui
+  tags:
+    - infra_ui 
+
+- name: start infra ui supervisord
+  sudo: yes
+  supervisorctl: 
+    name: infra_ui 
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  tags:
+    - infra_ui
+
+- name: setup consul service check infra_ui
+  sudo: yes
+  template:
+    src: infra_ui_service.json.j2
+    dest: /etc/consul.d/infra_ui_service.json
+  notify: reload consul config
+  tags:
+    - infra_ui
