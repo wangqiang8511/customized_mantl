@@ -2,3 +2,7 @@
 supervisord_conf_dir: /etc/supervisord
 supervisord_exec_dir: /usr/local/bin
 infra_ui_port: 7070
+etcd_browser_port: 2377
+promdash_port: 9091
+traefik_api_port: 3001
+flocker_ui_port: 4080
