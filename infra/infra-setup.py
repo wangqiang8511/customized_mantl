@@ -128,6 +128,20 @@ def generate_prometheus_host(config):
     return config
 
 
+def generate_more_settings(config):
+    remains = {}
+    presented = []
+    with open(os.path.join(tmpl_dir, "cluster.yml.j2")) as f:
+        for line in f:
+            if ':' in line:
+                presented.append(line.split(":")[0])
+    for k, v in config.iteritems():
+        if k not in presented:
+            remains[k] = v
+    config["more_settings"] = yaml.dump(remains, default_flow_style=False)
+    return config
+
+
 def render_template(config, template_name, outfile):
     env = Environment(loader=FileSystemLoader(tmpl_dir))
     template = env.get_template(template_name)
@@ -152,6 +166,7 @@ def infra_setup(config_file):
     config = generate_marathon_hosts(config)
     config = generate_consul_hosts(config)
     config = generate_prometheus_host(config)
+    config = generate_more_settings(config)
     out_cluster_yml = os.path.join(out_dir, "cluster.yml")
     render_template(config, "cluster.yml.j2", out_cluster_yml)
     out_infra_ansible_yml = os.path.join(out_dir, "infra_ansible.yml")
