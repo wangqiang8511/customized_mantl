@@ -78,3 +78,7 @@ You can use these variables to customize your swarm installation.
 .. data:: mesos_hosts
 
    Mesos master endpoint for monitoring.
+
+.. data:: consul_hosts 
+
+   Consul hosts for node exporter service discovery.

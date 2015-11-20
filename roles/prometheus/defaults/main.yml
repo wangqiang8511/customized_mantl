@@ -27,3 +27,6 @@ prometheus_mesos_exporter_image: prom/mesos-exporter
 prometheus_mesos_exporter_image_tag: latest
 mesos_hosts: "localhost:5050"
 mesos_exporter_port: 9108
+
+# Node exporter
+consul_hosts: "localhost:8500"
