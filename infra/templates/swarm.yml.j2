@@ -36,7 +36,15 @@
   roles:
     - flocker
 
+- hosts: {{ cluster_name }}-control-01
+  vars:
+    consul_mode: server 
+  roles:
+    - consul
+
 - hosts: role=control
+  vars:
+    consul_mode: server 
   roles:
     - consul
     - etcd
