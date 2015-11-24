@@ -50,8 +50,8 @@ def get_required_fields(config):
     required_keys = []
     required_keys += required_fields["aws"]
     required_keys += required_fields[config["cluster_type"]]
-    if config["openvpn_enabled"]:
-        required_keys += required_fields["op"]
+    if "openvpn_enabled" in config.keys() and config["openvpn_enabled"]:
+        required_keys += required_fields["openvpn"]
     return required_keys
 
 
@@ -152,7 +152,7 @@ def generate_openvpn_settings(config):
             % config["cluster_name"]
         config["openvpn_host"] = "%s-control-pub-01.%s" \
             % (config["cluster_name"], config["domain"])
-    config["openvpn_push_routes"] = "route 10.0.0.0 255.255.0.0"
+    config["openvpn_push_routes"] = ["route 10.0.0.0 255.255.0.0"]
     return config
 
 
@@ -180,15 +180,16 @@ def infra_setup(config_file):
     config = generate_marathon_hosts(config)
     config = generate_consul_hosts(config)
     config = generate_prometheus_host(config)
+    config = generate_openvpn_settings(config)
     config = generate_more_settings(config)
     out_cluster_yml = os.path.join(out_dir, "cluster.yml")
     render_template(config, "cluster.yml.j2", out_cluster_yml)
     out_infra_ansible_yml = os.path.join(out_dir, "infra_ansible.yml")
     render_template(config, "%s.yml.j2" % config["cluster_type"],
                     out_infra_ansible_yml)
-    config = generate_openvpn_settings(config)
-    out_openvpn_yml = os.path.join(out_dir, "openvpn_ansible.yml")
-    render_template(config, "openvpn.yml.j2", out_openvpn_yml)
+    if "openvpn_enabled" in config.keys() and config["openvpn_enabled"]:
+        out_openvpn_yml = os.path.join(out_dir, "openvpn_ansible.yml")
+        render_template(config, "openvpn.yml.j2", out_openvpn_yml)
 
 
 if __name__ == '__main__':

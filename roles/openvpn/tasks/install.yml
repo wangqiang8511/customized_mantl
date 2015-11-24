@@ -27,3 +27,4 @@
   copy:
     src: openvpn_service.json
     dest: /etc/consul.d/openvpn_service.json
+  notify: reload consul config

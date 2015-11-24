@@ -22,3 +22,4 @@ aws.tf
 cluster.yml
 infra_ansible.yml
 infra.yml
+openvpn_ansible.yml
