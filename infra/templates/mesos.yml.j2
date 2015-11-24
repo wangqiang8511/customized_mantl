@@ -59,6 +59,12 @@
   roles:
     - etcd_proxy
 
+- hosts: all
+  vars:
+    seconds: 10
+  roles:
+    - pause
+
 - hosts: "role=master:role=worker"
   roles:
     - calico
@@ -80,10 +86,20 @@
 - hosts: "role=master"
   vars:
     zk_hosts: "{{ zk_hosts }}" 
+  roles:
+    - marathon
+
+- hosts: all
+  vars:
+    seconds: 10
+  roles:
+    - pause
+
+- hosts: "role=master"
+  vars:
     marathon_hosts: "{{ marathon_hosts }}"
     traefik_log_level: INFO
   roles:
-    - marathon
     - traefik
 
 - hosts: all
