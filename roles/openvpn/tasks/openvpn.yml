@@ -2,13 +2,10 @@
 
 - include_vars: "{{ansible_distribution}}.{{ansible_distribution_release}}.yml"
 
-- include: install.deb.yml
-  when: ansible_os_family == 'Debian'
-
-- include: install.yum.yml
-  when: ansible_os_family == 'RedHat'
+- include: install.yml
 
 - include: configure.yml
 
 - name: Ensure OpenVPN is started
+  sudo: yes
   service: name=openvpn state=started enabled=yes

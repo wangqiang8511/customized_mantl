@@ -1,14 +1,29 @@
 ---
 
 - name: Install requirements (Debian)
+  sudo: yes
   apt: name={{item}}
   with_items: [openvpn, udev, openssl]
 
 - name: Install dependencies (Debian)
+  sudo: yes
   apt: name={{item}}
   when: openvpn_use_pam_users|default(false)
   with_items: [libpam-pwdfile, python-passlib]
 
 - name: Install LDAP dependencies (Debian)
+  sudo: yes
   apt: name=openvpn-auth-ldap
   when: openvpn_use_ldap
+
+- name: ensure consul config dir
+  sudo: yes
+  file: 
+    path: /etc/consul.d 
+    state: directory
+
+- name: setup consul service check openvpn
+  sudo: yes
+  copy:
+    src: openvpn_service.json
+    dest: /etc/consul.d/openvpn_service.json

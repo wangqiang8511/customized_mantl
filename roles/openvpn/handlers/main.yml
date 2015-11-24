@@ -1,9 +1,11 @@
 ---
 
 - name: openvpn restart
+  sudo: yes
   service: name=openvpn state=restarted
 
 - name: openvpn pack clients
+  sudo: yes
   command: tar cvzf {{openvpn_keydir}}/{{item.item}}.tar.gz -C {{openvpn_keydir}} {{item.item}}.crt {{item.item}}.key {{item.item}}.ovpn ca.crt
   when: item.changed
   with_items: openvpn_clients_changed.results

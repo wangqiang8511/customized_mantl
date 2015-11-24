@@ -1,45 +1,54 @@
 ---
 
 - name: Extract easy-rsa files
+  sudo: yes
   unarchive: src=easy-rsa.tar.gz dest={{openvpn_etcdir}}
 
 - name: Generate scripts
+  sudo: yes
   template: src={{item}}.j2 dest={{openvpn_etcdir}}/{{item}} mode=0700
   with_items: [vars, build-server.sh, build-client.sh, revoke-client.sh]
 
 - name: Generate Server keys
+  sudo: yes
   command: "{{openvpn_etcdir}}/build-server.sh"
   args: { creates: "{{ openvpn_keydir }}" }
 
 - name: Generate Clients keys
+  sudo: yes
   command: "{{openvpn_etcdir}}/build-client.sh {{item}}"
   args: { creates: "{{ openvpn_keydir }}/{{item}}.crt" }
   with_items: openvpn_clients
 
 - name: Revoke Clients keys
+  sudo: yes
   command: "{{openvpn_etcdir}}/revoke-client.sh {{item}}"
   args: { removes: "{{ openvpn_keydir }}/{{item}}.crt" }
   with_items: openvpn_clients_revoke
 
-
 - name: Generate Clients configurations
+  sudo: yes
   template: src=client.conf.j2 dest={{openvpn_keydir}}/{{item}}.ovpn
   with_items: openvpn_clients
   notify: openvpn pack clients
   register: openvpn_clients_changed
 
 - name: Setup PAM
+  sudo: yes
   template: src=openvpn.pam.j2 dest=/etc/pam.d/openvpn
   when: openvpn_use_pam
 
 - name: Configure users
+  sudo: yes
   htpasswd: path={{openvpn_etcdir}}/users name={{item.name}} password={{item.password}} crypt_scheme=des_crypt
   with_items: openvpn_use_pam_users
 
 - name: Setup LDAP
+  sudo: yes
   template: src=auth-ldap.conf.j2 dest=/etc/openvpn/auth-ldap.conf
   when: openvpn_use_ldap
 
 - name: Configure server
+  sudo: yes
   template: src=server.conf.j2 dest={{openvpn_etcdir}}/server.conf
   notify: [openvpn restart]
