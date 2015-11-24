@@ -56,6 +56,16 @@ ansible-playbook \
   infra_ansible.yml 
 ```
 
+* Provisioning openvpn with ansible
+
+```bash
+ansible-playbook \
+  -i plugins/inventory/terraform.py \
+  -e @security.yml \
+  -e @cluster.yml \
+  openvpn_ansible.yml 
+```
+
 # Destroy created infra
 
 ```bash
