@@ -260,6 +260,13 @@ resource "aws_security_group" "control" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress { # HTTPS
+    from_port = 1194
+    to_port = 1194
+    protocol = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   ingress { # ICMP
     from_port=-1
     to_port=-1
