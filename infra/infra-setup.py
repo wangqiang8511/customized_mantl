@@ -5,7 +5,9 @@
 """ Setup infra config files
 
 * aws.tf
-* swarm.yml
+* cluster.yml
+* xxx_ansible.yml
+* openvpn_ansible.yml
 """
 import os
 
@@ -48,6 +50,8 @@ def get_required_fields(config):
     required_keys = []
     required_keys += required_fields["aws"]
     required_keys += required_fields[config["cluster_type"]]
+    if config["openvpn_enabled"]:
+        required_keys += required_fields["op"]
     return required_keys
 
 
@@ -142,6 +146,16 @@ def generate_more_settings(config):
     return config
 
 
+def generate_openvpn_settings(config):
+    if "openvpn_host" not in config.keys():
+        config["openvpn_deploy_host"] = "%s-control-01" \
+            % config["cluster_name"]
+        config["openvpn_host"] = "%s-control-pub-01.%s" \
+            % (config["cluster_name"], config["domain"])
+    config["openvpn_push_routes"] = "route 10.0.0.0 255.255.0.0"
+    return config
+
+
 def render_template(config, template_name, outfile):
     env = Environment(loader=FileSystemLoader(tmpl_dir))
     template = env.get_template(template_name)
@@ -172,6 +186,9 @@ def infra_setup(config_file):
     out_infra_ansible_yml = os.path.join(out_dir, "infra_ansible.yml")
     render_template(config, "%s.yml.j2" % config["cluster_type"],
                     out_infra_ansible_yml)
+    config = generate_openvpn_settings(config)
+    out_openvpn_yml = os.path.join(out_dir, "openvpn_ansible.yml")
+    render_template(config, "openvpn.yml.j2", out_openvpn_yml)
 
 
 if __name__ == '__main__':

@@ -23,3 +23,7 @@ mesos:
  - exhibitor_s3_bucket
  - exhibitor_config_prefix
  - cluster_type
+
+openvpn:
+ - openvpn_use_pam
+ - openvpn_use_pam_users
