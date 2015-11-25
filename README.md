@@ -6,7 +6,7 @@ This is mirror of [MANTL](https://github.com/CiscoCloud/microservices-infrastruc
   Now have control, master, worker
 * use ubuntu as base
 * use supervisord instead of systemd
-* mainly focus on aws
+* Only Tested on **aws**
 * Remove the security certificates. (So doesn't work for cross dc setup. Need to be added)
 
 # Components included

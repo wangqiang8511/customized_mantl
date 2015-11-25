@@ -74,7 +74,10 @@
 			    <a class="iframecontrol" title="Prometheus" src="http://{{ prometheus_host }}.{{ host_domain }}:9090">Prometheus</a>
                             </li>
                             <li>
-			    <a class="iframecontrol" title= "PromeDash" src="http://{{ prometheus_host }}.{{ host_domain }}:{{ promdash_port }}">PromeDash</a>
+			    <a class="iframecontrol" title= "PromeDash" src="http://{{ prometheus_host }}.{{ host_domain }}:{{ promdash_port }}">PromDash</a>
+                            </li>
+                            <li>
+			    <a class="iframecontrol" title= "PromeDash" src="http://{{ prometheus_host }}.{{ host_domain }}:{{ prometheus_alertmanager_port }}">AlertManager</a>
                             </li>
                             <li>
 			    <a class="iframecontrol" title= "Traefik" src="http://{{ cluster_name }}-master-001.{{ host_domain }}:{{ traefik_api_port }}">Traefik</a>
