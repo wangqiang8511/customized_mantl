@@ -11,6 +11,8 @@ openvpn_port: 1194
 openvpn_proto: udp
 openvpn_dev: tun
 openvpn_server: 10.8.0.0 255.255.255.0              # Set empty for skip
+openvpn_cidr: 10.8.0.0/24               
+openvpn_address: 10.8.0.0               
 openvpn_max_clients: 100
 openvpn_log: /var/log/openvpn.log                   # Log's directory
 openvpn_keepalive: "10 120"

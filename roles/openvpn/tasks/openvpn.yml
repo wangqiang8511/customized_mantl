@@ -6,6 +6,8 @@
 
 - include: configure.yml
 
+- include: iptables.yml
+
 - name: Ensure OpenVPN is started
   sudo: yes
   service: name=openvpn state=started enabled=yes
