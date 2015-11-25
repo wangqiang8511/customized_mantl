@@ -91,6 +91,10 @@ You can use these variables to customize your swarm installation.
 
    Docker image tag of prometheus alertmanager
 
+.. data:: prometheus_alertmanager_host
+
+   Host of prometheus alertmanager
+
 .. data:: prometheus_alertmanager_port
 
    Port of prometheus alertmanager

@@ -38,6 +38,7 @@ smtp_username: temp
 smtp_password: temp
 smtp_host: example.com:465
 sender_email: temp@example.com
+prometheus_alertmanager_host: localhost
 prometheus_alertmanager_port: 9093
 slack_webhook_url: "http://slack.com"
 slack_channel: "#general"
