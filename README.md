@@ -81,6 +81,9 @@ ansible-playbook \
   openvpn_ansible.yml 
 ```
 
+You can find out your openvpn client config/certs on the openvpn server host
+/etc/openvpn/keys/your-key-name.tar.gz
+
 # Destroy created infra
 
 ```bash
