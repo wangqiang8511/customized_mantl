@@ -9,6 +9,9 @@ global:
   external_labels:
     monitor: '{{ cluster_name}}'
 
+rule_files:
+  - "/etc/prometheus/alert.rules"
+
 scrape_configs:
   # Prometheus.
   - job_name: 'prometheus'

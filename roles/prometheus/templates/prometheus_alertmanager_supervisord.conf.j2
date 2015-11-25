@@ -1,0 +1,12 @@
+[program:prometheus]
+command= /opt/bin/start_prometheus.sh
+autostart=true
+autorestart=true
+startretries=999
+redirect_stderr=True
+nodaemon = False
+debug = False
+stdout_logfile = /var/tmp/prometheus.out
+stderr_logfile = /var/tmp/prometheus.err
+loglevel = "info"
+stopasgroup=true

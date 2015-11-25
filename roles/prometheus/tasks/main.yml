@@ -43,6 +43,15 @@
   tags:
     - prometheus 
 
+- name: setup prometheus alert rules
+  sudo: yes
+  template:
+    src: alert.rules.j2
+    dest: "/etc/prometheus/alert.rules"
+  notify: restart prometheus
+  tags:
+    - prometheus 
+
 - name: setup prometheus supervisord config
   sudo: yes
   template:
@@ -69,6 +78,8 @@
   notify: reload consul config
   tags:
     - prometheus
+
+- include: alertmanager.yml
 
 - include: consul_exporter.yml
 

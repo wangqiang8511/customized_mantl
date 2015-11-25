@@ -82,3 +82,43 @@ You can use these variables to customize your swarm installation.
 .. data:: consul_hosts 
 
    Consul hosts for node exporter service discovery.
+
+.. data:: prometheus_alertmanager_image
+
+   Docker image of prometheus alertmanager
+
+.. data:: prometheus_alertmanager_image_tag
+
+   Docker image tag of prometheus alertmanager
+
+.. data:: prometheus_alertmanager_port
+
+   Port of prometheus alertmanager
+
+.. data:: smtp_username
+
+   Username of smtp server
+
+.. data:: smtp_password
+
+   Password of smtp server
+
+.. data:: smtp_host
+
+   Host of smtp server with port number specified
+
+.. data:: sender_email
+
+   Email of sender of email alert
+
+.. data:: receipt_email
+
+   Receipt email of alert
+
+.. data:: slack_webhook_url
+
+   Slack webhook url for slack alert
+
+.. data:: slack_channel
+
+   Slack channel for slack alert

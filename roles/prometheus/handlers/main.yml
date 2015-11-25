@@ -6,6 +6,8 @@
     state: restarted
     supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
 
+- include: alertmanager.yml
+
 - include: consul_exporter.yml
 
 - include: mesos_exporter.yml

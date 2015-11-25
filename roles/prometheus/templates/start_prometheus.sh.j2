@@ -6,6 +6,8 @@ docker rm -f $CONTAINER_NAME
 docker run --name $CONTAINER_NAME \
     -i \
     --net=host \
-    -v /etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro \
+    -v /etc/prometheus:/etc/prometheus:ro \
     -v /data/prometheus:/prometheus:rw \
-    {{ prometheus_image }}:{{ prometheus_image_tag }}
+    {{ prometheus_image }}:{{ prometheus_image_tag }} \
+    -config.file=/etc/prometheus/prometheus.yml \
+    -alertmanager.url=http://{{ prometheus_alertmanager_host }}:{{prometheus_alertmanager_port }}

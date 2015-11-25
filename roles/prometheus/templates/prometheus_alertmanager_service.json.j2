@@ -1,0 +1,11 @@
+{ 
+  "service": {
+    "name": "prometheus_alertmanager",
+    "port": {{ prometheus_alertmanager_port }},
+    "check": {
+      "script": "/opt/bin/supervisor_service_check.sh prometheus_alertmanager",
+      "interval": "15s",
+      "timeout": "2s"
+    }
+  }
+}

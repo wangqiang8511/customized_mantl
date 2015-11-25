@@ -1,0 +1,7 @@
+---
+- name: restart prometheus alertmanager
+  sudo: yes
+  supervisorctl: 
+    name: prometheus_alertmanager
+    state: restarted
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"

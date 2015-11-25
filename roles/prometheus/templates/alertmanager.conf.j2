@@ -1,0 +1,20 @@
+notification_config { 
+  name: "alertmanager_critical"
+  slack_config {
+    webhook_url: "{{ slack_webhook_url }}"
+    channel: "{{ slack_channel }}"
+    send_resolved: true
+  }
+  email_config {
+    email: "{{ receipt_email }}"
+  }
+}
+
+aggregation_rule {
+  filter {
+    name_re: "severity"
+    value_re: "critical"
+  }
+  repeat_rate_seconds: 3600
+  notification_config_name: "alertmanager_critical"
+}

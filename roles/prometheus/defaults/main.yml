@@ -30,3 +30,15 @@ mesos_exporter_port: 9108
 
 # Node exporter
 consul_hosts: "localhost:8500"
+
+# alertmanager
+prometheus_alertmanager_image: prom/alertmanager
+prometheus_alertmanager_image_tag: latest
+smtp_username: temp
+smtp_password: temp
+smtp_host: example.com:465
+sender_email: temp@example.com
+prometheus_alertmanager_port: 9093
+slack_webhook_url: "http://slack.com"
+slack_channel: "#general"
+receipt_email: to@example.com

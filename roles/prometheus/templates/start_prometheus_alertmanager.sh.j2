@@ -1,0 +1,15 @@
+#!/bin/bash
+
+CONTAINER_NAME=prometheus_alertmanager
+
+docker rm -f $CONTAINER_NAME
+docker run --name $CONTAINER_NAME \
+    -i \
+    -p {{ prometheus_alertmanager_port }}:9093 \
+    -v /etc/prometheus/alertmanager.conf:/alertmanager.conf \
+    -e SMTP_AUTH_USERNAME="{{ smtp_username }}" \
+    -e SMTP_AUTH_IDENTITY="" \
+    -e SMTP_AUTH_PASSWORD="{{ smtp_password }}" \
+    {{ prometheus_alertmanager_image }}:{{ prometheus_alertmanager_image_tag }} -config.file=/alertmanager.conf \
+    -notification.smtp.smarthost="{{ smtp_host }}" \
+    -notification.smtp.sender="{{ sender_email }}"

@@ -1,0 +1,61 @@
+---
+# Setup prometheus alertmanager
+- name: ensure customized bin
+  sudo: yes
+  file:
+    path: /opt/bin
+    state: directory
+  tags:
+    - prometheus
+    - alertmanager
+
+- name: setup start_prometheus_alertmanager script
+  sudo: yes
+  template:
+    src: start_prometheus_alertmanager.sh.j2
+    dest: /opt/bin/start_prometheus_alertmanager.sh
+    mode: 0755
+  notify: restart prometheus alertmanager
+  tags:
+    - prometheus
+    - alertmanager
+
+- name: setup prometheus alertmanager config
+  sudo: yes
+  template:
+    src: alertmanager.conf.j2
+    dest: /etc/prometheus/alertmanager.conf
+  notify: restart prometheus alertmanager
+  tags:
+    - prometheus
+    - alertmanager
+
+- name: setup prometheus alertmanager supervisord config
+  sudo: yes
+  template:
+    src: prometheus_alertmanager_supervisord.conf.j2
+    dest: "{{ supervisord_conf_dir }}/prometheus_alertmanager.conf"
+  notify: restart prometheus alertmanager
+  tags:
+    - prometheus 
+    - alertmanager
+
+- name: start prometheus alertmanager supervisord
+  sudo: yes
+  supervisorctl: 
+    name: prometheus_alertmanager
+    state: present
+    supervisorctl_path: "{{ supervisord_exec_dir }}/supervisorctl"
+  tags:
+    - prometheus
+    - alertmanager
+
+- name: setup consul service check prometheus alertmanager
+  sudo: yes
+  template:
+    src: prometheus_alertmanager_service.json.j2
+    dest: /etc/consul.d/prometheus_alertmanager_service.json
+  notify: reload consul config
+  tags:
+    - prometheus
+    - alertmanager
