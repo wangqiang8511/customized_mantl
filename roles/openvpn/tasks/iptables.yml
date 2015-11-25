@@ -1,19 +1,23 @@
 ---
 - name: install_iptables_persistent
+  sudo: yes
   environment:
      DEBIAN_FRONTEND: noninteractive
   apt: pkg=iptables-persistent state=present
 
 - name:  get iptables rules
+  sudo: yes
   shell: iptables -n -t nat -L
   register: iptables_nat_rules
   always_run: yes
 
 - name: add NAT iptables rule
+  sudo: yes
   command: /sbin/iptables -v -t nat -A POSTROUTING -o {{ ansible_default_ipv4.interface }} -s {{ openvpn_cidr }} -j SNAT --to-source {{ private_ipv4 }}
   when: iptables_nat_rules.stdout.find("{{ openvpn_address }}") == -1
   register: iptables_nat_rule_added
 
 - name: save NAT iptables rules
+  sudo: yes
   command: service iptables-persistent save
   when: iptables_nat_rule_added.changed
