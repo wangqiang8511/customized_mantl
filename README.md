@@ -1,6 +1,6 @@
 This is mirror of [MANTL](https://github.com/CiscoCloud/microservices-infrastructure)
 
-[![Join chat](https://slack.lycandev.com/badge.svg)](https://slack.lycandev.com)
+[![Join chat](http://slack.lycandev.com/badge.svg)](http://slack.lycandev.com)
 
 # Changes from the original repo:
 
