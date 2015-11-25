@@ -20,4 +20,20 @@ domain: ""
 cluster_name: mi
 exhibitor_s3_bucket: ""
 exhibitor_config_prefix: ""
-cluster_type: swarm
+cluster_type: mesos
+
+# Slack for alerting
+slack_webhook_url: "Your slack webhook url"
+slack_channel: "Your slack channel"
+
+# VPN
+openvpn_enabled: yes
+openvpn_key_country: US
+openvpn_key_province: CA
+openvpn_key_city: LA
+openvpn_key_org: your_companry
+openvpn_key_email: your_email
+openvpn_use_pam: yes
+openvpn_clients: [mi]
+openvpn_use_pam_users:
+  - { name: yourname, password: yourpassword }

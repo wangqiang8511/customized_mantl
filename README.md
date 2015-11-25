@@ -1,5 +1,7 @@
 This is mirror of [MANTL](https://github.com/CiscoCloud/microservices-infrastructure)
 
+[![Join chat](https://slack.lycandev.com/badge.svg)](https://slack.lycandev.com)
+
 # Changes from the original repo:
 
 * instance group, separate coordination services with mesos
@@ -8,6 +10,7 @@ This is mirror of [MANTL](https://github.com/CiscoCloud/microservices-infrastruc
 * use supervisord instead of systemd
 * Only Tested on **aws**
 * Remove the security certificates. (So doesn't work for cross dc setup. Need to be added)
+* Far away from completed
 
 # Components included
 
