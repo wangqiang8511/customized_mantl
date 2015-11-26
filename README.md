@@ -131,4 +131,15 @@ openvpn_use_pam: yes
 openvpn_clients: [mi]
 openvpn_use_pam_users:
   - { name: yourname, password: yourpassword }
+
+# Slack config for prometheus alerting
+slack_webhook_url: "https://xxx.slack.com/xxx"
+slack_channel: "#alert"
 ```
+
+# Checkout the Dashboard
+
+You can check out the infra dashboard on http://clustername-control-01.domain.com:7070
+
+![image](./docs/imgs/consul.png)
+![image](./docs/imgs/supervisord.png)
