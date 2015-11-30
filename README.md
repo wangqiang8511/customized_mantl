@@ -87,6 +87,13 @@ ansible-playbook \
 You can find out your openvpn client config/certs on the openvpn server host
 /etc/openvpn/keys/your-key-name.tar.gz
 
+* Sync all the config files and terraform states files to s3
+
+```bash
+# You should have aws cli installed and configured.
+./sync_important_to_s3.sh s3://some_bucket/some_prefix
+```
+
 # Destroy created infra
 
 ```bash
