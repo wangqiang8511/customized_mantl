@@ -17,6 +17,7 @@ module "aws-dc" {
   control_iam_profile = "{{ aws_instance_role }}"
   master_iam_profile = "{{ aws_instance_role }}"
   worker_iam_profile = "{{ aws_instance_role }}"
+  short_name = "{{ cluster_name }}"
 }
 
 module "route53-dns" {

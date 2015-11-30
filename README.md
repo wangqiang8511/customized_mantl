@@ -149,4 +149,3 @@ slack_channel: "#alert"
 You can check out the infra dashboard on http://clustername-control-01.domain.com:7070
 
 ![image](./docs/imgs/consul.png)
-![image](./docs/imgs/supervisord.png)
