@@ -19,8 +19,9 @@ variable "worker_volume_size" {default = "20"} # size is in gigabytes
 variable "control_iam_profile" { default = "" }
 variable "master_iam_profile" { default = "" }
 variable "worker_iam_profile" { default = "" }
-variable "subnet_id" { default = "" }
-variable "security_groups_ids" { default = [] }
+variable "subnet_id" { }
+variable "security_groups_public" { }
+variable "security_groups_private" { }
 
 
 resource "aws_ebs_volume" "mi-control-addtional" {
@@ -50,7 +51,11 @@ resource "aws_instance" "mi-control-nodes" {
   availability_zone = "${var.availability_zone}"
   instance_type = "${var.control_type}"
   count = "${var.control_count}"
-  vpc_security_group_ids = "${var.security_groups_ids}"
+
+  vpc_security_group_ids = [
+    "${var.security_groups_public}",
+    "${var.security_groups_private}",
+  ]
 
   key_name = "${aws_key_pair.deployer.key_name}"
 
@@ -106,7 +111,10 @@ resource "aws_instance" "mi-master-nodes" {
   instance_type = "${var.master_type}"
   count = "${var.master_count}"
 
-  vpc_security_group_ids = "${var.security_groups_ids}"
+  vpc_security_group_ids = [
+    "${var.security_groups_public}",
+    "${var.security_groups_private}",
+  ]
 
   key_name = "${aws_key_pair.deployer.key_name}"
 
@@ -154,7 +162,10 @@ resource "aws_instance" "mi-worker-nodes" {
   instance_type = "${var.worker_type}"
   count = "${var.worker_count}"
 
-  vpc_security_group_ids = "${var.security_groups_ids}"
+  vpc_security_group_ids = [
+    "${var.security_groups_public}",
+    "${var.security_groups_private}",
+  ]
 
   key_name = "${aws_key_pair.deployer.key_name}"
 
