@@ -183,17 +183,6 @@ resource "aws_volume_attachment" "mi-master-nodes-addtional-attachment" {
   force_detach = true
 }
 
-resource "aws_ebs_volume" "mi-worker-addtional" {
-  availability_zone = "${var.availability_zone}"
-  count = "${var.worker_count}"
-  size = "${var.addtional_volume_size}"
-  type = "gp2"
-
-  tags {
-    Name = "${var.short_name}-worker-addtional-${format("%02d", count.index+1)}"
-  }
-}
-
 resource "aws_instance" "mi-worker-nodes" {
   ami = "${var.source_ami}"
   availability_zone = "${var.availability_zone}"
@@ -218,20 +207,19 @@ resource "aws_instance" "mi-worker-nodes" {
     volume_size = "${var.worker_volume_size}"
   }
 
+  ebs_block_device {
+    device_name = "xvdh"
+    volume_type = "gp2"
+    volume_size = "${var.addtional_volume_size}"
+    delete_on_termination = true
+  }
+
   tags {
     Name = "${var.short_name}-worker-${format("%03d", count.index+1)}"
     sshUser = "${var.ssh_username}"
     role = "worker"
     dc = "${var.datacenter}"
   }
-}
-
-resource "aws_volume_attachment" "mi-worker-nodes-addtional-attachment" {
-  count = "${var.worker_count}"
-  device_name = "xvdh"
-  instance_id = "${element(aws_instance.mi-worker-nodes.*.id, count.index)}"
-  volume_id = "${element(aws_ebs_volume.mi-worker-addtional.*.id, count.index)}"
-  force_detach = true
 }
 
 resource "aws_security_group" "control" {
