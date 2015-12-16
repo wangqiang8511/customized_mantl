@@ -1,5 +1,5 @@
 ---
-marathon_version: 0.11.1
+marathon_version: 0.13.0
 supervisord_conf_dir: /etc/supervisord
 supervisord_exec_dir: /usr/local/bin
 zk_hosts: zk://localhost:2181
